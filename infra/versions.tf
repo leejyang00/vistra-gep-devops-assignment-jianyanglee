@@ -15,4 +15,8 @@ terraform {
 
 provider "aws" {
   # Configuration options
+  default_tags {
+    # Common tags applied to all resources beyond provider default_tags
+    tags = local.common_tags
+  }
 }

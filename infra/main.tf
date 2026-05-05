@@ -3,10 +3,15 @@
 # Composes child modules for a serverless CRUD API on AWS.
 # -----------------------------------------------------------------------------
 
-
 # --- Task 1: Foundation Infrastructure ---
 module "storage" {
-    source = "./modules/storage"
+  source = "./modules/storage"
 
-    name_prefix = local.name_prefix
+  name_prefix  = local.name_prefix
+}
+
+module "dynamo_db" {
+  source = "./modules/dynamodb"
+
+  name_prefix  = local.name_prefix
 }
