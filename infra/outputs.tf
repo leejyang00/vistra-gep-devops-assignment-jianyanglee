@@ -16,3 +16,6 @@ output "dynamodb_table_arn" {
   description = "DynamoDB table ARN"
   value       = module.dynamo_db.table_arn
 }
+
+# --- Lambda ---
+# output ""

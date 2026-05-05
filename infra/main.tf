@@ -7,11 +7,18 @@
 module "storage" {
   source = "./modules/storage"
 
-  name_prefix  = local.name_prefix
+  name_prefix = local.name_prefix
 }
 
 module "dynamo_db" {
   source = "./modules/dynamodb"
 
+  name_prefix = local.name_prefix
+}
+
+module "lambda" {
+  source = "./modules/lambda"
+
   name_prefix  = local.name_prefix
+  dynamodb_arn = module.dynamo_db.table_arn
 }

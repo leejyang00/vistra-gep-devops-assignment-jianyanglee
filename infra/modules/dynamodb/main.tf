@@ -16,7 +16,7 @@ resource "aws_dynamodb_table" "items" {
     type = "S"
   }
 
-  deletion_protection_enabled = true 
+  deletion_protection_enabled = true
 
   tags = {
     Name    = "${var.name_prefix}-dynamodb-items"
