@@ -16,7 +16,7 @@ module "dynamo_db" {
   name_prefix = local.name_prefix
 }
 
-# --- Task 1: Lambda Functions ---
+# --- Task 2 Serverless API ---
 module "lambda" {
   source = "./modules/lambda"
 
@@ -24,4 +24,6 @@ module "lambda" {
   dynamodb_arn     = module.dynamo_db.table_arn
   lambda_functions = local.lambda_functions
   runtime          = var.lambda_runtime
+  s3_bucket        = module.storage.bucket_id
+  s3_bucket_arn    = module.storage.bucket_arn
 }

@@ -62,11 +62,27 @@ data "aws_iam_policy_document" "dynamodb_access" {
   }
 }
 
+# Attach inline policy for S3 access
+data "aws_iam_policy_document" "s3_read_lambda" {
+  statement {
+    sid    = "AllowS3GetDeploymentPackage"
+    effect = "Allow"
+    actions = [
+      "s3:GetObject",
+      "s3:GetObjectVersion",
+    ]
+    resources = [
+      "${var.s3_bucket_arn}/packages/${var.name_prefix}/*",
+    ]
+  }
+}
+
 # combine policies into one document for the role
 data "aws_iam_policy_document" "lambda_combined_policy" {
   source_policy_documents = [
     data.aws_iam_policy_document.lambda_logging.json,
     data.aws_iam_policy_document.dynamodb_access.json,
+    data.aws_iam_policy_document.s3_read_lambda.json,
   ]
 }
 
@@ -75,6 +91,27 @@ resource "aws_iam_role_policy" "lambda_inline" {
   name   = "${var.name_prefix}-lambda-policy"
   role   = aws_iam_role.lambda_exec_role.id
   policy = data.aws_iam_policy_document.lambda_combined_policy.json
+}
+
+# --- Deployment Package ---
+# Archive the source directory, upload to S3, and reference from Lambda.
+data "archive_file" "lambda_source" {
+  type        = "zip"
+  source_dir  = "${path.module}/../../../src/handlers"
+  output_path = "${path.module}/files/lambda-handlers.zip"
+}
+
+# Upload the deployment package to S3
+resource "aws_s3_object" "lambda_package" {
+  bucket = var.s3_bucket
+  key    = "packages/${var.name_prefix}/lambda-handlers-${data.archive_file.lambda_source.output_md5}.zip"
+  source = data.archive_file.lambda_source.output_path
+  etag   = data.archive_file.lambda_source.output_md5
+
+  tags = {
+    Name    = "lambda-handlers"
+    Version = data.archive_file.lambda_source.output_md5
+  }
 }
 
 # --- CloudWatch Log Groups ---

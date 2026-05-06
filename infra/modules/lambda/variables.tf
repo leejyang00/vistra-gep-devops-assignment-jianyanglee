@@ -22,3 +22,13 @@ variable "runtime" {
   description = "Lambda runtime identifier"
   type        = string
 }
+
+variable "s3_bucket" {
+  description = "S3 bucket name for deployment packages"
+  type        = string
+}
+
+variable "s3_bucket_arn" {
+  description = "S3 bucket ARN for IAM policy scoping"
+  type        = string
+}
