@@ -5,19 +5,20 @@
 
 # --- Task 1: Foundation Infrastructure ---
 module "storage" {
-  source = "./modules/storage"
+  source      = "./modules/storage"
   name_prefix = local.name_prefix
 }
 
 module "dynamo_db" {
-  source = "./modules/dynamodb"
+  source      = "./modules/dynamodb"
   name_prefix = local.name_prefix
 }
 
 # --- Task 2 Serverless API ---
 module "lambda" {
-  source = "./modules/lambda"
-  name_prefix         = local.name_prefix
+  source      = "./modules/lambda"
+  name_prefix = local.name_prefix
+  environment = var.environment
   # dynamodb
   dynamodb_arn        = module.dynamo_db.table_arn
   dynamodb_table_name = module.dynamo_db.table_name

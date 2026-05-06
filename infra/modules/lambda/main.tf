@@ -126,8 +126,8 @@ resource "aws_lambda_function" "lambda_api_items" {
   environment {
     variables = {
       DYNAMODB_TABLE_NAME = var.dynamodb_table_name
-      # ENVIRONMENT = var.environment
-      # LOG_LEVEL   = var.environment == "prod" ? "INFO" : "DEBUG"
+      ENVIRONMENT = var.environment
+      LOG_LEVEL   = var.environment == "prod" ? "INFO" : "DEBUG"
     }
   }
 
