@@ -1,6 +1,7 @@
-import { logger } from "../utils/logger.mjs";
-import { parseBody } from "../utils/parse-body.mjs";
+import { randomUUID } from "node:crypto";
+import { logger } from "./utils/logger.mjs";
 import { badRequest, created, serverError } from "./utils/response.mjs";
+import { parseBody } from "./utils/validator.mjs";
 
 export const handler = async (event) => {
 	const requestId = event.requestContext?.requestId ?? randomUUID();

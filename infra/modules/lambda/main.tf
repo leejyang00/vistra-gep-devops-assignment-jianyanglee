@@ -93,27 +93,6 @@ resource "aws_iam_role_policy" "lambda_inline" {
   policy = data.aws_iam_policy_document.lambda_combined_policy.json
 }
 
-# --- Deployment Package ---
-# Archive the source directory, upload to S3, and reference from Lambda.
-data "archive_file" "lambda_source" {
-  type        = "zip"
-  source_dir  = "${path.module}/../../../src/handlers"
-  output_path = "${path.module}/files/lambda-handlers.zip"
-}
-
-# Upload the deployment package to S3
-resource "aws_s3_object" "lambda_package" {
-  bucket = var.s3_bucket
-  key    = "packages/${var.name_prefix}/lambda-handlers-${data.archive_file.lambda_source.output_md5}.zip"
-  source = data.archive_file.lambda_source.output_path
-  etag   = data.archive_file.lambda_source.output_md5
-
-  tags = {
-    Name    = "lambda-handlers"
-    Version = data.archive_file.lambda_source.output_md5
-  }
-}
-
 # --- CloudWatch Log Groups ---
 resource "aws_cloudwatch_log_group" "lambda_log_group" {
   for_each = var.lambda_functions
@@ -128,33 +107,38 @@ resource "aws_cloudwatch_log_group" "lambda_log_group" {
 }
 
 # --- Lambda Functions ---
-# resource "aws_lambda_function" "lambda" {
-#   for_each = var.lambda_functions
+resource "aws_lambda_function" "lambda_api_items" {
+  for_each = var.lambda_functions
 
-#   function_name = "${var.name_prefix}-${replace(each.key, "_", "-")}"
-#   description = each.value.description
-#   role = aws_iam_role.lambda_exec_role.arn
-#   handler = each.value.handler
-#   runtime = var.runtime
+  function_name = "${var.name_prefix}-${replace(each.key, "_", "-")}"
+  description   = each.value.description
+  role          = aws_iam_role.lambda_exec_role.arn
 
-#   # function_name = "${var.name_prefix}-${replace(each.key, "_", "-")}"
-#   # handler       = each.value.handler
-#   # runtime       = "python3.9"
-#   # role          = aws_iam_role.lambda_exec_role.arn
-#   # description   = each.value.description
+  handler       = each.value.handler
+  runtime       = var.lambda_runtime
+  memory_size   = var.lambda_memory_size
+  timeout       = var.lambda_timeout
 
-#   # environment {
-#   #   variables = {
-#   #     DYNAMODB_TABLE = var.dynamodb_arn
-#   #   }
-#   # }
+  s3_bucket        = var.s3_bucket
+  s3_key           = aws_s3_object.lambda_package[each.key].key
+  source_code_hash = data.archive_file.lambda[each.key].output_base64sha256
 
-#   depends_on = [ 
-#     aws_cloudwatch_log_group.lambda_log_group,
-#   ]
+  environment {
+    variables = {
+      DYNAMODB_TABLE_NAME = var.dynamodb_table_name
+      # ENVIRONMENT = var.environment
+      # LOG_LEVEL   = var.environment == "prod" ? "INFO" : "DEBUG"
+    }
+  }
 
-#   tags = {
-#     Name     = "${var.name_prefix}-${replace(each.key, "_", "-")}"
-#     Function = each.key
-#   }
-# }
+  depends_on = [
+    aws_s3_object.lambda_package,
+    aws_cloudwatch_log_group.lambda_log_group,
+    aws_iam_role_policy.lambda_inline,
+  ]
+
+  tags = {
+    Name     = "${var.name_prefix}-${replace(each.key, "_", "-")}"
+    Function = each.key
+  }
+}

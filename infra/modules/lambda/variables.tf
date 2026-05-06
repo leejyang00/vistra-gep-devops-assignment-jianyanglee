@@ -8,19 +8,39 @@ variable "dynamodb_arn" {
   type        = string
 }
 
+variable "dynamodb_table_name" {
+  description = "Name of the DynamoDB table for Lambda environment variable"
+  type        = string
+}
+
+variable "lambda_runtime" {
+  description = "Lambda runtime identifier"
+  type        = string
+}
+
+variable "lambda_memory_size" {
+  description = "Lambda memory allocation in MB"
+  type        = number
+}
+
+variable "lambda_timeout" {
+  description = "Lambda function timeout in seconds"
+  type        = number
+
+  validation {
+    condition     = var.lambda_timeout >= 1 && var.lambda_timeout <= 900
+    error_message = "Lambda timeout must be between 1 and 900 seconds."
+  }
+}
+
 variable "lambda_functions" {
   description = "Map of Lambda function configurations"
   type = map(object({
     handler     = string
     description = string
     http_method = string
-    route       = string
+    route_path       = string
   }))
-}
-
-variable "runtime" {
-  description = "Lambda runtime identifier"
-  type        = string
 }
 
 variable "s3_bucket" {

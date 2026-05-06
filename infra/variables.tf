@@ -30,3 +30,25 @@ variable "lambda_runtime" {
     error_message = "Lambda runtime must be a valid Node.js runtime (e.g., nodejs22.x)."
   }
 }
+
+variable "lambda_memory_size" {
+  description = "Memory allocation for Lambda functions in MB"
+  type        = number
+  default     = 256
+
+  validation {
+    condition     = var.lambda_memory_size >= 128 && var.lambda_memory_size <= 3008
+    error_message = "Lambda memory must be between 128 MB and 3008 MB."
+  }
+}
+
+variable "lambda_timeout" {
+  description = "Lambda function timeout in seconds"
+  type        = number
+  default     = 30
+
+  validation {
+    condition     = var.lambda_timeout >= 1 && var.lambda_timeout <= 900
+    error_message = "Lambda timeout must be between 1 and 900 seconds."
+  }
+}
