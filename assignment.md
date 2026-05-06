@@ -62,9 +62,9 @@ Design and implement your Terraform project structure for a serverless REST API 
 
 Implement Terraform code for core infrastructure components:
 
-- S3 bucket for Lambda deployment packages with versioning enabled
-- DynamoDB table for application data with encryption enabled
-- IAM roles for Lambda execution following least-privilege principles
+- S3 bucket for Lambda deployment packages with versioning enabled ✅
+- DynamoDB table for application data with encryption enabled ✅ 
+- IAM roles for Lambda execution following least-privilege principles ✅
 - CloudWatch Log groups for structured logging
 - **OPTIONAL:** Write tests for Terraform code
 

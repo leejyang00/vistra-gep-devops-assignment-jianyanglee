@@ -19,3 +19,14 @@ variable "environment" {
     error_message = "Environment must be one of: dev, staging, prod."
   }
 }
+
+variable "lambda_runtime" {
+  description = "Node.js runtime version for Lambda functions"
+  type        = string
+  default     = "nodejs22.x"
+
+  validation {
+    condition     = can(regex("^nodejs[0-9]+\\.x$", var.lambda_runtime))
+    error_message = "Lambda runtime must be a valid Node.js runtime (e.g., nodejs22.x)."
+  }
+}

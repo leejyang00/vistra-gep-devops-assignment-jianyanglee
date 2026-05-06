@@ -76,3 +76,48 @@ resource "aws_iam_role_policy" "lambda_inline" {
   role   = aws_iam_role.lambda_exec_role.id
   policy = data.aws_iam_policy_document.lambda_combined_policy.json
 }
+
+# --- CloudWatch Log Groups ---
+resource "aws_cloudwatch_log_group" "lambda_log_group" {
+  for_each = var.lambda_functions
+
+  name              = "/aws/lambda/${var.name_prefix}-${replace(each.key, "_", "-")}"
+  retention_in_days = 14
+
+  tags = {
+    Name     = "/aws/lambda/${var.name_prefix}-${replace(each.key, "_", "-")}"
+    Function = each.key
+  }
+}
+
+# --- Lambda Functions ---
+# resource "aws_lambda_function" "lambda" {
+#   for_each = var.lambda_functions
+
+#   function_name = "${var.name_prefix}-${replace(each.key, "_", "-")}"
+#   description = each.value.description
+#   role = aws_iam_role.lambda_exec_role.arn
+#   handler = each.value.handler
+#   runtime = var.runtime
+
+#   # function_name = "${var.name_prefix}-${replace(each.key, "_", "-")}"
+#   # handler       = each.value.handler
+#   # runtime       = "python3.9"
+#   # role          = aws_iam_role.lambda_exec_role.arn
+#   # description   = each.value.description
+
+#   # environment {
+#   #   variables = {
+#   #     DYNAMODB_TABLE = var.dynamodb_arn
+#   #   }
+#   # }
+
+#   depends_on = [ 
+#     aws_cloudwatch_log_group.lambda_log_group,
+#   ]
+
+#   tags = {
+#     Name     = "${var.name_prefix}-${replace(each.key, "_", "-")}"
+#     Function = each.key
+#   }
+# }

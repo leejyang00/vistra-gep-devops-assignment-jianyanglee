@@ -11,4 +11,13 @@ locals {
     Environment = var.environment
     ManagedBy   = "terraform"
   }
+
+  lambda_functions = {
+    create_item = {
+      handler = "create_item.lambda_handler"
+      description = "Create a new item in the items collection"
+      http_method = "POST"
+      route = "/items"
+    }
+  }
 }
