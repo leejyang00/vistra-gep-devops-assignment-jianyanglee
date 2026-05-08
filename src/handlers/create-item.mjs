@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { logger } from "./utils/logger.mjs";
 import { badRequest, created, serverError } from "./utils/response.mjs";
-import { parseBody } from "./utils/validator.mjs";
+import { parseBody, validateRequiredFields, validateItemInput } from "./utils/validator.mjs";
 import { TABLE_NAME, docClient } from "./utils/dynamodb.mjs";
 import { PutCommand } from "@aws-sdk/lib-dynamodb";
 
@@ -14,6 +14,16 @@ export const handler = async (event) => {
 		if (!body) {
 			logger.warn("Invalid JSON body", { requestId });
 			return badRequest("Request body must be a valid JSON");
+		}
+
+		// validation
+		const requiredErrors = validateRequiredFields(body, ["name", "status"]);
+		const validationErrors = validateItemInput(body);
+		const allErrors = [...requiredErrors, ...validationErrors];
+
+		if (allErrors.length > 0) {
+			logger.warn("Validation failed", { requestId, errors: allErrors });
+			return badRequest("Validation failed", allErrors);
 		}
 
 		const now = new Date().toISOString();

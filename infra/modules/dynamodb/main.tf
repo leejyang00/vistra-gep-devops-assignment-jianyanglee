@@ -16,6 +16,9 @@ resource "aws_dynamodb_table" "items" {
     type = "S"
   }
 
+  # attribute - status and createdAt can be added here later if needed for GSI --- IGNORE ---
+  # GSI can be added here later once access patterns are known --- IGNORE ---
+
   deletion_protection_enabled = true
 
   tags = {
