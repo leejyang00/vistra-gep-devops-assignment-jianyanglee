@@ -31,5 +31,17 @@ locals {
       http_method = "GET"
       route_path  = "items"
     }
+    update_item = {
+      handler     = "update-item.handler"
+      description = "Update an existing item by ID"
+      http_method = "PUT"
+      route_path  = "items/{id}"
+    }
+    # delete_item = {
+    #   handler     = "delete-item.handler"
+    #   description = "Delete an item by ID"
+    #   http_method = "DELETE"
+    #   route_path  = "items/{id}"
+    # }
   }
 }

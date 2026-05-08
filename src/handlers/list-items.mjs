@@ -1,6 +1,8 @@
 import { randomUUID } from "node:crypto";
 import { logger } from "./utils/logger.mjs";
 import { serverError, badRequest, success} from "./utils/response.mjs";
+// import { docClient, TABLE_NAME } from "./utils/dynamodb.mjs";
+// import { UpdateCommand } from "@aws-sdk/lib-dynamodb";
 
 export const handler = async (event) => {
     const requestId = event.requestContext?.requestId ?? randomUUID();

@@ -21,6 +21,7 @@ aws lambda invoke \
   }' \
   response.json && cat response.json
 
+# get-item
 aws lambda invoke \
   --function-name vistra-serverless-api-dev-get-item \
   --region ap-southeast-2 \
@@ -33,5 +34,21 @@ aws lambda invoke \
     "requestContext": {}
   }' \
   response.json && cat response.json
+
+# list-items
+aws lambda invoke \
+  --function-name vistra-serverless-api-dev-list-items \
+  --region ap-southeast-2 \
+  --cli-binary-format raw-in-base64-out \
+  --payload '{
+    "path": "/items",
+    "httpMethod": "GET",
+    "queryStringParameters": {"limit": "20"},
+    "headers": {"Content-Type": "application/json"},
+    "requestContext": {}
+  }' \
+  response.json && cat response.json
+
+
 
 ```
