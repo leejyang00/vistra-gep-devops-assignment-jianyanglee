@@ -132,7 +132,6 @@ resource "aws_lambda_function" "lambda_api_items" {
   }
 
   depends_on = [
-    aws_s3_object.lambda_package,
     aws_cloudwatch_log_group.lambda_log_group,
     aws_iam_role_policy.lambda_inline,
   ]

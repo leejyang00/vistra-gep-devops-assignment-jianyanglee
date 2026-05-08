@@ -25,5 +25,11 @@ locals {
       http_method = "GET"
       route_path  = "items/{id}"
     }
+    list_items = {
+      handler     = "list-items.handler"
+      description = "List all items in the collection"
+      http_method = "GET"
+      route_path  = "items"
+    }
   }
 }
