@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { logger } from "./utils/logger.mjs";
-import { success, badRequest, notFound, serverError } from "./utils/response.mjs";
+import { badRequest, notFound, serverError } from "./utils/response.mjs";
 import { parseBody, validateItemInput } from "./utils/validator.mjs";
 // import { docClient, TABLE_NAME } from "./lib/dynamodb.mjs";
 // import { UpdateCommand } from "@aws-sdk/lib-dynamodb";
