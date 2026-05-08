@@ -84,8 +84,8 @@ Implement production-ready Lambda functions and API Gateway infrastructure.
 
 - Implement CRUD API handlers for items management:
   - `POST /items` — Create item ✅
-  - `GET /items` — List items
-  - `GET /items/{id}` — Get single item
+  - `GET /items` — List items 
+  - `GET /items/{id}` — Get single item ✅
   - `PUT /items/{id}` — Update item
   - `DELETE /items/{id}` — Delete item
 - Use ES Module syntax ✅ 

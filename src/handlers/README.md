@@ -21,4 +21,17 @@ aws lambda invoke \
   }' \
   response.json && cat response.json
 
+aws lambda invoke \
+  --function-name vistra-serverless-api-dev-get-item \
+  --region ap-southeast-2 \
+  --cli-binary-format raw-in-base64-out \
+  --payload '{
+    "path": "/items/8c9dd9d5-268e-4095-b8f0-0ad53ecd3528",
+    "httpMethod": "GET",
+    "pathParameters": {"id": "8c9dd9d5-268e-4095-b8f0-0ad53ecd3528"},
+    "headers": {"Content-Type": "application/json"},
+    "requestContext": {}
+  }' \
+  response.json && cat response.json
+
 ```
