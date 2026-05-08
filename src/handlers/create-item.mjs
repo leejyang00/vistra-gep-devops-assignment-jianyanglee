@@ -2,6 +2,8 @@ import { randomUUID } from "node:crypto";
 import { logger } from "./utils/logger.mjs";
 import { badRequest, created, serverError } from "./utils/response.mjs";
 import { parseBody } from "./utils/validator.mjs";
+import { TABLE_NAME, docClient } from "./utils/dynamodb.mjs";
+import { PutCommand } from "@aws-sdk/lib-dynamodb";
 
 export const handler = async (event) => {
 	const requestId = event.requestContext?.requestId ?? randomUUID();
@@ -24,7 +26,14 @@ export const handler = async (event) => {
 			updatedAt: now,
 		};
 
-		// TODO: persist item to database (e.g., DynamoDB)
+		// persist item to DynamoDB
+		await docClient.send(
+			new PutCommand({
+				TableName: TABLE_NAME,
+				Item: item,
+				ConditionExpression: "attribute_not_exists(id)", // Ensure no duplicate IDs
+			})
+		)
 
 		logger.info("Item created", { requestId, itemId: item.id });
 		return created(item);

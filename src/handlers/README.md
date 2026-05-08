@@ -16,8 +16,8 @@ aws lambda invoke \
     "path": "/items",
     "httpMethod": "POST",
     "headers": {"Content-Type": "application/json"},
-    "requestContext": {"requestId": "test-123"},
-    "body": "{\"name\":\"why did you do\",\"description\":\"Invoked from batman\",\"status\":\"deny\"}"
+    "requestContext": {"requestId": "test-393qwe"},
+    "body": "{\"name\":\"bob marley\",\"description\":\"michael did it\",\"status\":\"deny\"}"
   }' \
   response.json && cat response.json
 

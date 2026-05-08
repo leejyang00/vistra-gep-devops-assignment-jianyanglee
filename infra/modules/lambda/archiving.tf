@@ -19,7 +19,7 @@ locals {
     "utils/logger.mjs"    = file("${local.handler_source_dir}/utils/logger.mjs")
     "utils/response.mjs"  = file("${local.handler_source_dir}/utils/response.mjs")
     "utils/validator.mjs"  = file("${local.handler_source_dir}/utils/validator.mjs")
-    # "utils/dynamodb.mjs"   = file("${local.handler_source_dir}/utils/dynamodb.mjs")
+    "utils/dynamodb.mjs"   = file("${local.handler_source_dir}/utils/dynamodb.mjs")
   }
 }
 
