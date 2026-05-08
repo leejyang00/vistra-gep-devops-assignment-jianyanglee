@@ -37,11 +37,11 @@ locals {
       http_method = "PUT"
       route_path  = "items/{id}"
     }
-    # delete_item = {
-    #   handler     = "delete-item.handler"
-    #   description = "Delete an item by ID"
-    #   http_method = "DELETE"
-    #   route_path  = "items/{id}"
-    # }
+    delete_item = {
+      handler     = "delete-item.handler"
+      description = "Delete an item by ID"
+      http_method = "DELETE"
+      route_path  = "items/{id}"
+    }
   }
 }
