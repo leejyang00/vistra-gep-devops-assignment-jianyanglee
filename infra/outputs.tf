@@ -1,5 +1,4 @@
 
-
 # --- Storage ---
 output "deployment_bucket" {
   description = "S3 bucket name for Lambda deployment packages"
@@ -31,4 +30,10 @@ output "lambda_function_arns" {
 output "lambda_log_group_names" {
   description = "List of CloudWatch Log Group names for Lambda functions"
   value       = module.lambda.lambda_log_group_names
+}
+
+# --- API Gateway ---
+output "api_id" {
+  description = "API Gateway REST API ID"
+  value       = module.api_gateway.api_id
 }

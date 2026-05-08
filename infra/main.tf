@@ -14,7 +14,7 @@ module "dynamo_db" {
   name_prefix = local.name_prefix
 }
 
-# --- Task 2 Serverless API ---
+# --- Task 2 Serverless API - lambda & api gateway ---
 module "lambda" {
   source      = "./modules/lambda"
   name_prefix = local.name_prefix
@@ -30,4 +30,9 @@ module "lambda" {
   # s3 bucket
   s3_bucket     = module.storage.bucket_id
   s3_bucket_arn = module.storage.bucket_arn
+}
+
+module "api_gateway" {
+  source      = "./modules/api-gateway"
+  name_prefix = local.name_prefix
 }

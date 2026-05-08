@@ -65,16 +65,16 @@ Implement Terraform code for core infrastructure components:
 - S3 bucket for Lambda deployment packages with versioning enabled ✅
 - DynamoDB table for application data with encryption enabled ✅ 
 - IAM roles for Lambda execution following least-privilege principles ✅
-- CloudWatch Log groups for structured logging
+- CloudWatch Log groups for structured logging ✅
 - **OPTIONAL:** Write tests for Terraform code
 
 **Deliverables:**
 
-- Complete project repository with your chosen organization
-- Terraform code following HashiCorp conventions
+- Complete project repository with your chosen organization ✅
+- Terraform code following HashiCorp conventions ✅
 - Clear README explaining your folder structure and the reasoning behind your organizational approach
-- Terraform configuration files with proper variable definitions and validation rules
-- Outputs file containing important resource identifiers and endpoints
+- Terraform configuration files with proper variable definitions and validation rules ✅
+- Outputs file containing important resource identifiers and endpoints ✅
 
 ### Task 2: Serverless API with Lambda & API Gateway
 
@@ -84,10 +84,10 @@ Implement production-ready Lambda functions and API Gateway infrastructure.
 
 - Implement CRUD API handlers for items management:
   - `POST /items` — Create item ✅
-  - `GET /items` — List items 
+  - `GET /items` — List items ✅
   - `GET /items/{id}` — Get single item ✅
-  - `PUT /items/{id}` — Update item
-  - `DELETE /items/{id}` — Delete item
+  - `PUT /items/{id}` — Update item ✅
+  - `DELETE /items/{id}` — Delete item ✅
 - Use ES Module syntax ✅ 
 - Implement proper error handling with appropriate HTTP status codes ✅
 - Include input validation for all requests ✅ 

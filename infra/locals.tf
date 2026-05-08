@@ -19,17 +19,17 @@ locals {
       http_method = "POST"
       route_path = "items"
     }
-    get_item = {
-      handler     = "get-item.handler"
-      description = "Retrieve a single item by ID"
-      http_method = "GET"
-      route_path  = "items/{id}"
-    }
     list_items = {
       handler     = "list-items.handler"
       description = "List all items in the collection"
       http_method = "GET"
       route_path  = "items"
+    }
+    get_item = {
+      handler     = "get-item.handler"
+      description = "Retrieve a single item by ID"
+      http_method = "GET"
+      route_path  = "items/{id}"
     }
     update_item = {
       handler     = "update-item.handler"
