@@ -1,9 +1,13 @@
 import { randomUUID } from "node:crypto";
+import { PutCommand } from "@aws-sdk/lib-dynamodb";
+import { docClient, TABLE_NAME } from "./utils/dynamodb.mjs";
 import { logger } from "./utils/logger.mjs";
 import { badRequest, created, serverError } from "./utils/response.mjs";
-import { parseBody, validateRequiredFields, validateItemInput } from "./utils/validator.mjs";
-import { TABLE_NAME, docClient } from "./utils/dynamodb.mjs";
-import { PutCommand } from "@aws-sdk/lib-dynamodb";
+import {
+	parseBody,
+	validateItemInput,
+	validateRequiredFields,
+} from "./utils/validator.mjs";
 
 export const handler = async (event) => {
 	const requestId = event.requestContext?.requestId ?? randomUUID();
@@ -42,8 +46,8 @@ export const handler = async (event) => {
 				TableName: TABLE_NAME,
 				Item: item,
 				ConditionExpression: "attribute_not_exists(id)", // Ensure no duplicate IDs
-			})
-		)
+			}),
+		);
 
 		logger.info("Item created", { requestId, itemId: item.id });
 		return created(item);
