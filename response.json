@@ -1,0 +1,1 @@
+{"statusCode":404,"headers":{"Access-Control-Allow-Origin":"*","Access-Control-Allow-Methods":"GET,POST,PUT,DELETE,OPTIONS","Access-Control-Allow-Headers":"Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token","Content-Type":"application/json"},"body":"{\"success\":false,\"error\":{\"message\":\"Item '8c9dd9d5-268e-4095-b8f0-0ad53ecd3528' not found\"}}"}
