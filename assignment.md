@@ -1,6 +1,6 @@
 # Vistra GEP DevOps Engineer Technical Assignment
 
-**Serverless Infrastructure Design with Terraform and AWS**
+Serverless Infrastructure Design with Terraform and AWS
 
 ## Assignment Overview
 
@@ -63,7 +63,7 @@ Design and implement your Terraform project structure for a serverless REST API 
 Implement Terraform code for core infrastructure components:
 
 - S3 bucket for Lambda deployment packages with versioning enabled ✅
-- DynamoDB table for application data with encryption enabled ✅ 
+- DynamoDB table for application data with encryption enabled ✅
 - IAM roles for Lambda execution following least-privilege principles ✅
 - CloudWatch Log groups for structured logging ✅
 - **OPTIONAL:** Write tests for Terraform code
@@ -88,9 +88,9 @@ Implement production-ready Lambda functions and API Gateway infrastructure.
   - `GET /items/{id}` — Get single item ✅
   - `PUT /items/{id}` — Update item ✅
   - `DELETE /items/{id}` — Delete item ✅
-- Use ES Module syntax ✅ 
+- Use ES Module syntax ✅
 - Implement proper error handling with appropriate HTTP status codes ✅
-- Include input validation for all requests ✅ 
+- Include input validation for all requests ✅
 - Implement structured JSON logging ✅
 - Use AWS SDK v3 with modular imports ✅
 - **DO NOT** need to implement actual CRUD code that makes changes to database
@@ -117,7 +117,7 @@ Implement validation and security scanning workflows.
 
 **Workflows should:**
 
-- Validate Terraform code on every PR and push: ✅ 
+- Validate Terraform code on every PR and push: ✅
   - Run `terraform fmt -check` to verify formatting
   - Run `terraform init -backend=false` (initialize without backend)
   - Run `terraform validate` to check syntax and configuration

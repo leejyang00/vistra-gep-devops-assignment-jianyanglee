@@ -1,13 +1,16 @@
+# Lambda Handlers
 
+## Formatting
 
-formatting
-```
+```bash
 npx biome check --write .   # format + sort imports + lint fixes
 npx biome format --write .  # format only
 ```
 
-```
-# sample invoke
+## Sample Invokes
+
+```bash
+# create-item
 aws lambda invoke \
   --function-name vistra-serverless-api-dev-create-item \
   --region ap-southeast-2 \
@@ -48,7 +51,4 @@ aws lambda invoke \
     "requestContext": {}
   }' \
   response.json && cat response.json
-
-
-
 ```
