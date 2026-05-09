@@ -117,7 +117,7 @@ Implement validation and security scanning workflows.
 
 **Workflows should:**
 
-- Validate Terraform code on every PR and push:
+- Validate Terraform code on every PR and push: ⚠️
   - Run `terraform fmt -check` to verify formatting
   - Run `terraform init -backend=false` (initialize without backend)
   - Run `terraform validate` to check syntax and configuration
