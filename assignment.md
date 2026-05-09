@@ -128,7 +128,7 @@ Implement validation and security scanning workflows.
   - Build Lambda function
   - Package for deployment
 - Include security scanning for Terraform code (tfsec, Checkov, or similar)
-- Include documentation validation (markdown linting)
+- Include documentation validation (markdown linting) ✅
 
 **Deliverables:**
 
@@ -233,8 +233,8 @@ Your README and supporting documentation should clearly explain the design, arch
 Create a validation approach to demonstrate that your code meets the requirements. This might include:
 
 - Script to run `terraform validate` and `terraform fmt -check` ✅
-- Node.js build and packaging validation
-- Verification that all code follows conventions
+- Node.js build and packaging validation ✅
+- Verification that all code follows conventions ✅
 
 All validation should work without AWS credentials or cloud account access.
 
