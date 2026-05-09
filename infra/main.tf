@@ -37,3 +37,4 @@ module "api_gateway" {
   name_prefix = local.name_prefix
   lambda_functions = module.lambda.function_details
 }
+

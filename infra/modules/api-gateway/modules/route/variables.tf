@@ -21,3 +21,9 @@ variable "request_parameters" {
   type        = map(bool)
   default     = {}
 }
+
+variable "cors_headers" {
+  description = "CORS headers to include in OPTIONS method response"
+  type        = map(string)
+  default     = {}
+}

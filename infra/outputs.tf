@@ -37,3 +37,23 @@ output "api_id" {
   description = "API Gateway REST API ID"
   value       = module.api_gateway.api_id
 }
+
+output "api_endpoint" {
+  description = "API Gateway endpoint URL"
+  value       = module.api_gateway.api_endpoint
+}
+
+output "api_execution_arn" {
+  description = "API Gateway execution ARN"
+  value       = module.api_gateway.api_execution_arn
+}
+
+output "stage_name" {
+  description = "API Gateway stage name"
+  value       = module.api_gateway.stage_name
+}
+
+output "api_log_group_name" {
+  description = "CloudWatch Log Group name for API Gateway access logs"
+  value       = module.api_gateway.api_log_group_name
+}
