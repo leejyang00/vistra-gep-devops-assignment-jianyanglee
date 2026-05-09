@@ -114,10 +114,10 @@ resource "aws_lambda_function" "lambda_api_items" {
   description   = each.value.description
   role          = aws_iam_role.lambda_exec_role.arn
 
-  handler       = each.value.handler
-  runtime       = var.lambda_runtime
-  memory_size   = var.lambda_memory_size
-  timeout       = var.lambda_timeout
+  handler     = each.value.handler
+  runtime     = var.lambda_runtime
+  memory_size = var.lambda_memory_size
+  timeout     = var.lambda_timeout
 
   s3_bucket        = var.s3_bucket
   s3_key           = aws_s3_object.lambda_package[each.key].key
