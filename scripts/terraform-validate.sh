@@ -52,22 +52,6 @@ check "Format check" terraform fmt -check -recursive
 check "Initialise (no backend)" terraform init -backend=false
 check "Validate configuration" terraform validate
 
-cd ..
-
-# # --- Node.js ---
-# echo ""
-# echo "📦 Node.js Lambda Handlers"
-
-# check "No CommonJS require()" bash -c '! grep -rn "require(" src/handlers/*.mjs src/handlers/lib/*.mjs 2>/dev/null'
-# check "No module.exports" bash -c '! grep -rn "module.exports" src/handlers/*.mjs src/handlers/lib/*.mjs 2>/dev/null'
-
-# for handler in src/handlers/create-item.mjs src/handlers/get-item.mjs src/handlers/list-items.mjs src/handlers/update-item.mjs src/handlers/delete-item.mjs src/handlers/event-processor.mjs src/handlers/scheduled-cleanup.mjs; do
-#   if [ -f "$handler" ]; then
-#     basename=$(basename "$handler")
-#     check "Handler export: $basename" grep -q "export const handler" "$handler"
-#   fi
-# done
-
 # --- Summary ---
 echo ""
 echo "=========================================="
