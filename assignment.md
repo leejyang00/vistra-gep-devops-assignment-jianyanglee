@@ -127,7 +127,7 @@ Implement validation and security scanning workflows.
   - Install dependencies
   - Build Lambda function
   - Package for deployment
-- Include security scanning for Terraform code (tfsec, Checkov, or similar)
+- Include security scanning for Terraform code (tfsec, Checkov, or similar) ✅
 - Include documentation validation (markdown linting) ✅
 
 **Deliverables:**
