@@ -10,7 +10,7 @@ on:
     branches: [main]
     paths:
       - "**.md"
-      - ".github/workflows/docs-lint.yml"
+      - ".github/workflows/docs-lint.yaml"
 
 permissions:
   contents: read
