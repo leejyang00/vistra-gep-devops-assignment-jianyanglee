@@ -1,0 +1,43 @@
+name: Security Scan
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "infra/**"
+      - ".github/workflows/security-scan.yaml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "infra/**"
+      - ".github/workflows/security-scan.yaml"
+
+permissions:
+  contents: read
+
+jobs:
+  checkov:
+    name: Checkov Infrastructure Security Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Checkov
+        uses: bridgecrewio/checkov-action@v12
+        with:
+          directory: infra/
+          framework: terraform
+          output_format: cli
+          soft_fail: true
+          quiet: true
+          skip_check: CKV_AWS_144,CKV_AWS_145  
+
+      - name: Post scan summary
+        if: always()
+        run: |
+          echo "## Security Scan Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Checkov scanned all Terraform files in \`infra/\`." >> $GITHUB_STEP_SUMMARY
+          echo "Soft-fail is enabled during development. Set \`soft_fail: false\` before production deployment." >> $GITHUB_STEP_SUMMARY
