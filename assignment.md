@@ -117,7 +117,7 @@ Implement validation and security scanning workflows.
 
 **Workflows should:**
 
-- Validate Terraform code on every PR and push: ⚠️
+- Validate Terraform code on every PR and push: ✅ 
   - Run `terraform fmt -check` to verify formatting
   - Run `terraform init -backend=false` (initialize without backend)
   - Run `terraform validate` to check syntax and configuration
@@ -232,7 +232,7 @@ Your README and supporting documentation should clearly explain the design, arch
 
 Create a validation approach to demonstrate that your code meets the requirements. This might include:
 
-- Script to run `terraform validate` and `terraform fmt -check`
+- Script to run `terraform validate` and `terraform fmt -check` ✅
 - Node.js build and packaging validation
 - Verification that all code follows conventions
 
