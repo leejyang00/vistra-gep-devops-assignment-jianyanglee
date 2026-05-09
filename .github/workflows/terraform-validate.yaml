@@ -5,15 +5,17 @@ on:
     branches: [main]
     paths:
       - "infra/**"
-      - ".github/workflows/terraform-validate.yml"
+      - ".github/workflows/terraform-validate.yaml"
   pull_request:
     branches: [main]
     paths:
       - "infra/**"
-      - ".github/workflows/terraform-validate.yml"
+      - ".github/workflows/terraform-validate.yaml"
 
 permissions:
   contents: read
+
+# testing
 
 jobs:
   validate:

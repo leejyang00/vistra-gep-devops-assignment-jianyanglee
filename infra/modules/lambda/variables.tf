@@ -44,7 +44,7 @@ variable "lambda_functions" {
     handler     = string
     description = string
     http_method = string
-    route_path       = string
+    route_path  = string
   }))
 }
 

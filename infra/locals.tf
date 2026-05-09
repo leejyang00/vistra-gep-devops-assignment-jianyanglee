@@ -14,10 +14,10 @@ locals {
 
   lambda_functions = {
     create_item = {
-      handler = "create-item.handler"
+      handler     = "create-item.handler"
       description = "Create a new item in the items collection"
       http_method = "POST"
-      route_path = "items"
+      route_path  = "items"
     }
     list_items = {
       handler     = "list-items.handler"

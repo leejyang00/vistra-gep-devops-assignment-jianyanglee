@@ -33,8 +33,8 @@ module "lambda" {
 }
 
 module "api_gateway" {
-  source      = "./modules/api-gateway"
-  name_prefix = local.name_prefix
+  source           = "./modules/api-gateway"
+  name_prefix      = local.name_prefix
   lambda_functions = module.lambda.function_details
 }
 
