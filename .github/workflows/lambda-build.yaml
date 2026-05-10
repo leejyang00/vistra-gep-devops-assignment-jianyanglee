@@ -21,8 +21,7 @@ env:
   DIST_DIR: dist/handlers
 
 jobs:
-  # Discover handlers from src/handlers/*.mjs so adding a function is just
-  # dropping a file in — no workflow edits, no drift with archiving.tf.
+  # Discover all handler files in src/handlers/ (e.g. "createUser"), for use in the build matrix.
   discover:
     name: Discover handlers
     runs-on: ubuntu-latest
@@ -37,8 +36,7 @@ jobs:
             | jq -R -s -c 'split("\n") | map(select(length > 0))')
           echo "handlers=$handlers" >> "$GITHUB_OUTPUT"
           echo "Found handlers: $handlers"
-
-  # One lint pass over the whole tree — no point repeating it per handler.
+  # Linting with Biome 
   lint:
     name: Lint (biome)
     runs-on: ubuntu-latest
@@ -60,6 +58,7 @@ jobs:
         working-directory: ${{ env.HANDLERS_DIR }}
         run: npx --no-install biome check .
 
+  # build each handler in parallel, per the discover step, and upload zips as workflow artifacts
   build:
     name: Build & package — ${{ matrix.handler }}
     needs: [discover, lint]
@@ -112,4 +111,3 @@ jobs:
           path: ${{ env.DIST_DIR }}/${{ matrix.handler }}.zip
           retention-days: 7
           if-no-files-found: error
- 
