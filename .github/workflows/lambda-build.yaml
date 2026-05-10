@@ -1,0 +1,115 @@
+name: Lambda Build
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/handlers/**"
+      - ".github/workflows/lambda-build.yaml"
+  pull_request:
+    paths:
+      - "src/handlers/**"
+      - ".github/workflows/lambda-build.yaml"
+  workflow_dispatch:
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  HANDLERS_DIR: src/handlers
+  DIST_DIR: dist/handlers
+
+jobs:
+  # Discover handlers from src/handlers/*.mjs so adding a function is just
+  # dropping a file in — no workflow edits, no drift with archiving.tf.
+  discover:
+    name: Discover handlers
+    runs-on: ubuntu-latest
+    outputs:
+      handlers: ${{ steps.list.outputs.handlers }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: list
+        working-directory: ${{ env.HANDLERS_DIR }}
+        run: |
+          handlers=$(ls *.mjs | sed 's/\.mjs$//' \
+            | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          echo "handlers=$handlers" >> "$GITHUB_OUTPUT"
+          echo "Found handlers: $handlers"
+
+  # One lint pass over the whole tree — no point repeating it per handler.
+  lint:
+    name: Lint (biome)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: ${{ env.HANDLERS_DIR }}/package-lock.json
+
+      - name: Install dependencies (incl. dev)
+        working-directory: ${{ env.HANDLERS_DIR }}
+        run: npm ci
+
+      - name: Biome check
+        working-directory: ${{ env.HANDLERS_DIR }}
+        run: npx --no-install biome check .
+
+  build:
+    name: Build & package — ${{ matrix.handler }}
+    needs: [discover, lint]
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        handler: ${{ fromJson(needs.discover.outputs.handlers) }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: ${{ env.HANDLERS_DIR }}/package-lock.json
+
+      - name: Install production dependencies
+        # No dev deps in the runtime image — keeps installs fast and zips honest.
+        working-directory: ${{ env.HANDLERS_DIR }}
+        run: npm ci --omit=dev
+
+      - name: Verify handler export
+        working-directory: ${{ env.HANDLERS_DIR }}
+        run: grep -q "export const handler" "${{ matrix.handler }}.mjs"
+
+      - name: Syntax check (node --check)
+        working-directory: ${{ env.HANDLERS_DIR }}
+        run: |
+          node --check "${{ matrix.handler }}.mjs"
+          for f in utils/*.mjs; do node --check "$f"; done
+
+      - name: Package zip
+        # Mirrors data.archive_file.lambda in infra/modules/lambda/archiving.tf:
+        # one handler file + shared utils/, zipped at the package root.
+        run: |
+          mkdir -p "${DIST_DIR}"
+          OUT="${GITHUB_WORKSPACE}/${DIST_DIR}/${{ matrix.handler }}.zip"
+          rm -f "$OUT"
+          cd "${HANDLERS_DIR}"
+          zip -qr "$OUT" "${{ matrix.handler }}.mjs" utils/
+          unzip -l "$OUT"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: lambda-${{ matrix.handler }}
+          path: ${{ env.DIST_DIR }}/${{ matrix.handler }}.zip
+          retention-days: 7
+          if-no-files-found: error
+ 
