@@ -66,7 +66,7 @@ Implement Terraform code for core infrastructure components:
 - DynamoDB table for application data with encryption enabled ✅
 - IAM roles for Lambda execution following least-privilege principles ✅
 - CloudWatch Log groups for structured logging ✅
-- **OPTIONAL:** Write tests for Terraform code
+- **OPTIONAL:** Write tests for Terraform code (by local script) ✅
 
 **Deliverables:**
 
@@ -122,7 +122,7 @@ Implement validation and security scanning workflows.
   - Run `terraform init -backend=false` (initialize without backend)
   - Run `terraform validate` to check syntax and configuration
   - Provide feedback on validation results
-- Validate Node.js Lambda functions:
+- Validate Node.js Lambda functions: ✅
   - Setup Node.js 22
   - Install dependencies
   - Build Lambda function
@@ -132,8 +132,8 @@ Implement validation and security scanning workflows.
 
 **Deliverables:**
 
-- GitHub Actions workflow files in `.github/workflows/`
-- All workflows execute successfully without AWS credentials
+- GitHub Actions workflow files in `.github/workflows/` ✅
+- All workflows execute successfully without AWS credentials ✅
 - Documentation explaining the CI/CD strategy and how the pipelines support code quality
 
 ---
