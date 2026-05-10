@@ -29,7 +29,7 @@ jobs:
     outputs:
       handlers: ${{ steps.list.outputs.handlers }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - id: list
         working-directory: ${{ env.HANDLERS_DIR }}
         run: |
@@ -43,10 +43,10 @@ jobs:
     name: Lint (biome)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Setup Node.js 22
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: "22"
           cache: npm
@@ -70,10 +70,10 @@ jobs:
         handler: ${{ fromJson(needs.discover.outputs.handlers) }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Setup Node.js 22
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: "22"
           cache: npm
@@ -106,7 +106,7 @@ jobs:
           unzip -l "$OUT"
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: lambda-${{ matrix.handler }}
           path: ${{ env.DIST_DIR }}/${{ matrix.handler }}.zip
