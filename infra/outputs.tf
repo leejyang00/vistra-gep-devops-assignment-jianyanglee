@@ -57,3 +57,14 @@ output "api_log_group_name" {
   description = "CloudWatch Log Group name for API Gateway access logs"
   value       = module.api_gateway.api_log_group_name
 }
+
+# --- Monitoring ---
+output "sns_topic_arn" {
+  description = "ARN of the SNS topic for monitoring alerts"
+  value       = module.monitoring.sns_topic_arn
+}
+
+output "alarm_names" {
+  description = "List of CloudWatch alarm names created for monitoring"
+  value       = module.monitoring.alarm_names
+}

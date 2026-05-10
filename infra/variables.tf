@@ -52,3 +52,9 @@ variable "lambda_timeout" {
     error_message = "Lambda timeout must be between 1 and 900 seconds."
   }
 }
+
+variable "notification_email" {
+  description = "Email address to receive alarm notifications (leave empty to disable)"
+  type        = string
+  default     = "test@example.com"
+}
