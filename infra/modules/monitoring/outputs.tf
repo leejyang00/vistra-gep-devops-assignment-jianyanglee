@@ -1,6 +1,6 @@
 output "sns_topic_arn" {
     description = "ARN of the SNS topic for monitoring alerts"
-    value       = aws_sns_topic.monitoring_alerts.arn
+    value       = aws_sns_topic.alarms.arn
 }
 
 output "alarm_names" {
@@ -13,4 +13,9 @@ output "alarm_names" {
         [aws_cloudwatch_metric_alarm.api_latency.alarm_name],
         [aws_cloudwatch_metric_alarm.dynamodb_throttles.alarm_name],
     )
+}
+
+output "dashboard_name" {
+  description = "CloudWatch dashboard name"
+  value       = aws_cloudwatch_dashboard.main.dashboard_name
 }
