@@ -57,6 +57,6 @@ export const handler = async (event) => {
 			error: err.message,
 			stack: err.stack,
 		});
-		return serverError;
+		return serverError();
 	}
 };

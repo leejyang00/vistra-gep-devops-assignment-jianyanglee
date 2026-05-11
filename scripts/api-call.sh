@@ -20,10 +20,10 @@ echo "Testing API: $API_URL"
 echo
 
 read -r -p "Enter item ID: " ITEM_ID
-if [[ -z "$ITEM_ID" ]]; then
-  echo "Error: item ID is required" >&2
-  exit 1
-fi
+# if [[ -z "$ITEM_ID" ]]; then
+#   echo "Error: item ID is required" >&2
+#   exit 1
+# fi
 echo
 
 TMP_BODY=$(mktemp)
