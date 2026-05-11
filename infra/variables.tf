@@ -58,3 +58,9 @@ variable "notification_email" {
   type        = string
   default     = "test@example.com"
 }
+
+variable "enable_monitoring" {
+  description = "Enable CloudWatch dashboards and alarms (Task 4)"
+  type        = bool
+  default     = true
+}
