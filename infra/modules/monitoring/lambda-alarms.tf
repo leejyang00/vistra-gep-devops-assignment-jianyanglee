@@ -7,10 +7,10 @@ resource "aws_cloudwatch_metric_alarm" "lambda_errors" {
 
   alarm_name          = "${var.name_prefix}-${each.key}-errors"
   comparison_operator = "GreaterThanThreshold"
-  evaluation_periods  = 2          # must breach 2 consecutive periods
+  evaluation_periods  = 2 # must breach 2 consecutive periods
   metric_name         = "Errors"
   namespace           = "AWS/Lambda"
-  period              = 300        # each period = 5 minutes
+  period              = 300 # each period = 5 minutes
   statistic           = "Sum"
   threshold           = local.lambda_error_threshold
   treat_missing_data  = "notBreaching"
@@ -20,7 +20,7 @@ resource "aws_cloudwatch_metric_alarm" "lambda_errors" {
   }
 
   alarm_actions = [aws_sns_topic.alarms.arn]
-  ok_actions    = [aws_sns_topic.alarms.arn]   # also notify on recovery
+  ok_actions    = [aws_sns_topic.alarms.arn] # also notify on recovery
 }
 
 resource "aws_cloudwatch_metric_alarm" "lambda_duration" {
