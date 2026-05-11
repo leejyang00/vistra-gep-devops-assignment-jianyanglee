@@ -1,6 +1,6 @@
-## Monitoring Strategy
+# Monitoring Strategy
 
-### Approach
+## Approach
 
 The monitoring strategy is **symptom-based**: alarms fire on user-visible failure modes (errors, latency, throttling) rather than on resource-level signals (CPU, memory) that may or may not translate into user pain. This keeps the on-call signal-to-noise ratio high — every page corresponds to something a customer can feel.
 
@@ -10,9 +10,9 @@ Coverage spans the three tiers the request traverses:
 2. **Lambda** — the compute layer. Errors, p99 duration, and throttles are tracked **per function** via `for_each` on the function map, so a regression in one handler doesn't get averaged out across the fleet.
 3. **DynamoDB** — the persistence layer. Throttled requests indicate insufficient table capacity before customers see 5XXs upstream.
 
-### Architecture
+## Architecture
 
-```
+```text
 CloudWatch metrics → CloudWatch Alarms → SNS topic → Email subscription
                   ↘ CloudWatch Dashboard (human-facing overview)
 ```
@@ -26,14 +26,14 @@ The monitoring module ([infra/modules/monitoring/](../infra/modules/monitoring/)
 
 Alarms use `treat_missing_data = "notBreaching"` so a quiet period (no traffic) does not page on-call. Lambda errors and API 5XX alarms set both `alarm_actions` and `ok_actions` on the SNS topic so the recovery transition is also notified — closing the loop after an incident.
 
-### Lambda Logging
+## Lambda Logging
 
 Lambda functions emit **structured JSON logs** via [src/handlers/utils/logger.mjs](../src/handlers/utils/logger.mjs), which lets CloudWatch Logs Insights parse fields directly without regex. Every request includes the API Gateway `requestId`, enabling end-to-end correlation across the API Gateway → Lambda → DynamoDB path. The Insights queries below rely on this structure.
 
-### Metrics and Thresholds
+## Metrics and Thresholds
 
 | Metric | Threshold | Rationale |
-|--------|-----------|-----------|
+| ------ | --------- | --------- |
 | Lambda Errors (sum) | > 5 in 10 min | Low threshold catches emerging issues early. Two evaluation periods prevent alarm flapping from single transient errors. |
 | Lambda Duration (p99) | > 5000 ms | Well above the typical cold-start + DynamoDB round-trip (~500 ms). Sustained p99 above 5s indicates a systemic issue. |
 | Lambda Throttles | > 0 | Any throttling is actionable — it means the concurrent execution limit is too low. |
@@ -41,11 +41,11 @@ Lambda functions emit **structured JSON logs** via [src/handlers/utils/logger.mj
 | API Gateway Latency (p99) | > 3000 ms | End-to-end latency including API Gateway overhead. |
 | DynamoDB ThrottledRequests | > 0 | Indicates table capacity is insufficient. |
 
-### CloudWatch Insights Queries
+## CloudWatch Insights Queries
 
 **Find slow Lambda invocations:**
 
-```
+```text
 fields @timestamp, @duration, @requestId
 | filter @duration > 3000
 | sort @duration desc
@@ -54,7 +54,7 @@ fields @timestamp, @duration, @requestId
 
 **Error rate by function:**
 
-```
+```text
 filter @message like /ERROR/
 | stats count() as errorCount by @log
 | sort errorCount desc
@@ -62,7 +62,7 @@ filter @message like /ERROR/
 
 **API Gateway latency percentiles:**
 
-```
+```text
 fields @timestamp, integrationLatency, status
 | stats avg(integrationLatency) as avgLatency,
         pct(integrationLatency, 95) as p95,
@@ -72,7 +72,7 @@ fields @timestamp, integrationLatency, status
 
 **DLQ investigation — find failed events:**
 
-```
+```text
 fields @timestamp, @message
 | filter @logStream like /event-processor/
 | filter @message like /ERROR/

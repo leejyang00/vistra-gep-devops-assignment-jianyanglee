@@ -16,12 +16,11 @@ Provisions a complete serverless REST API stack:
 
 No AWS credentials are required. All code validates locally using `terraform validate` and `terraform fmt`.
 
-
 ---
 
 ## Project Structure
 
-```
+```text
 ├── .github/workflows/                # CI/CD pipelines
 │   ├── terraform-validate.yaml       #   Terraform fmt + init + validate
 │   ├── lambda-build.yaml             #   Node.js build, syntax check, packaging
@@ -107,7 +106,7 @@ No AWS credentials are required. All code validates locally using `terraform val
 ## API Endpoints
 
 | Method | Path | Description | Status Codes |
-|--------|------|-------------|--------------|
+| ------ | ---- | ----------- | ------------ |
 | `POST` | `/items` | Create a new item | 201, 400, 500 |
 | `GET` | `/items` | List items (paginated) | 200, 400, 500 |
 | `GET` | `/items/{id}` | Get item by ID | 200, 400, 404, 500 |
@@ -115,4 +114,3 @@ No AWS credentials are required. All code validates locally using `terraform val
 | `DELETE` | `/items/{id}` | Delete item by ID | 200, 400, 404, 500 |
 
 All endpoints return JSON with CORS headers. Request bodies are validated; malformed JSON or missing required fields return 400 with detailed error messages.
-

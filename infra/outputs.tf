@@ -61,10 +61,10 @@ output "api_log_group_name" {
 # --- Monitoring ---
 output "sns_topic_arn" {
   description = "ARN of the SNS topic for monitoring alerts"
-  value       = module.monitoring.sns_topic_arn
+  value       = try(module.monitoring[0].sns_topic_arn, null)
 }
 
 output "alarm_names" {
   description = "List of CloudWatch alarm names created for monitoring"
-  value       = module.monitoring.alarm_names
+  value       = try(module.monitoring[0].alarm_names, [])
 }
