@@ -18,6 +18,54 @@ No AWS credentials are required. All code validates locally using `terraform val
 
 ---
 
+## Architecture
+
+```mermaid
+flowchart LR
+    Client(["Client"]) -->|HTTPS| APIGW["API Gateway<br/>REST API · CORS"]
+
+    subgraph Handlers["Lambda — Node.js 22 (ES Modules)"]
+        direction TB
+        L1["create-item<br/>POST /items"]
+        L2["list-items<br/>GET /items"]
+        L3["get-item<br/>GET /items/{id}"]
+        L4["update-item<br/>PUT /items/{id}"]
+        L5["delete-item<br/>DELETE /items/{id}"]
+    end
+
+    APIGW --> L1 & L2 & L3 & L4 & L5
+
+    L1 & L2 & L3 & L4 & L5 -->|"AWS SDK v3<br/>(lib-dynamodb)"| DDB[("DynamoDB<br/>items · SSE · PITR")]
+    L1 & L2 & L3 & L4 & L5 -.->|structured JSON logs| Logs["CloudWatch Logs<br/>(per-function groups)"]
+
+    S3[("S3<br/>Lambda packages<br/>versioned")] -.->|deployment artifact| Handlers
+
+    subgraph Monitoring["CloudWatch (Task 4)"]
+        direction TB
+        Dash["Dashboard"]
+        Alarms["Alarms<br/>errors · latency · throttles"]
+    end
+
+    APIGW -.-> Alarms
+    Handlers -.-> Alarms
+    DDB -.-> Alarms
+    Logs --> Dash
+    Alarms --> SNS["SNS topic<br/>→ email"]
+
+    classDef store fill:#fff5d6,stroke:#b58900;
+    classDef compute fill:#e6f1fc,stroke:#268bd2;
+    classDef edge fill:#e8f7e8,stroke:#2aa198;
+    classDef obs fill:#fbe9f3,stroke:#d33682;
+    class DDB,S3 store;
+    class L1,L2,L3,L4,L5 compute;
+    class APIGW edge;
+    class Dash,Alarms,SNS,Logs obs;
+```
+
+_Task 5 (EventBridge + scheduled processor + DLQ) is intentionally not implemented in this submission._
+
+---
+
 ## Project Structure
 
 ```text

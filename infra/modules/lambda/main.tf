@@ -20,21 +20,16 @@ resource "aws_iam_role" "lambda_exec_role" {
   }
 }
 
-# Attach inline policy for logging
+# Attach inline policy for logging.
+# Log groups are pre-created by Terraform (see aws_cloudwatch_log_group.lambda_log_group),
+# so the role only needs CreateLogStream + PutLogEvents scoped to those groups.
 data "aws_iam_policy_document" "lambda_logging" {
   statement {
-    actions = [
-      "logs:CreateLogGroup",
-      "logs:CreateLogStream",
-      "logs:PutLogEvents"
-    ]
-    resources = ["arn:aws:logs:*:*:*"]
-  }
-  statement {
-    sid = "AllowLogWriting"
+    sid    = "AllowLogWriting"
+    effect = "Allow"
     actions = [
       "logs:CreateLogStream",
-      "logs:PutLogEvents"
+      "logs:PutLogEvents",
     ]
     resources = [
       "arn:aws:logs:*:*:log-group:/aws/lambda/${var.name_prefix}-*:*",
