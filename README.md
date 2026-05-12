@@ -194,6 +194,17 @@ On-demand billing eliminates capacity planning for a new API with unknown traffi
 
 ---
 
+## Assumptions and Trade-Offs
+
+- **No authentication on API endpoints.** `authorization = "NONE"` on all methods. Production would add Cognito, a Lambda authorizer, or API keys depending on the consumer model.
+- **Handlers do not persist data.** Per the assignment scope, CRUD handlers validate input and return well-formed responses; the DynamoDB SDK calls are present but commented. The IAM, table, and client wiring are production-ready.
+- **Single-region deployment.** No cross-region replication for DynamoDB or S3. Suitable for workloads without multi-region RTO/RPO requirements.
+- **Soft-fail security scanning.** Checkov runs in advisory mode so the pipeline surfaces findings without blocking iteration. Flip `soft_fail: false` and triage findings before production.
+- **CORS allows all origins (`*`).** Acceptable for a public read API or local development; tighten to specific domains in production.
+- **Task 5 (EventBridge + DLQ) not implemented.** Scoped out to keep the submission focused on Tasks 1–4. The monitoring module is structured to absorb event-driven resources without refactoring.
+
+---
+
 ## Validating the Code Locally
 
 No AWS credentials needed. The scripts in [scripts/](scripts/) run the same checks as CI — see [docs/task-3.md](docs/task-3.md) for the full strategy.
