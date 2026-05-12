@@ -40,7 +40,9 @@ module "api_gateway" {
 
 # --- Task 4: Monitoring ---
 module "monitoring" {
-  source              = "./modules/monitoring"
+  source = "./modules/monitoring"
+  count  = var.enable_monitoring ? 1 : 0
+
   name_prefix         = local.name_prefix
   notification_email  = var.notification_email
   lambda_functions    = { for k, v in module.lambda.function_details : k => v.function_name }

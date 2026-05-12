@@ -15,5 +15,3 @@ resource "aws_sns_topic_subscription" "email" {
   endpoint  = var.notification_email
 }
 
-
-# --- CloudWatch Dashboard ---

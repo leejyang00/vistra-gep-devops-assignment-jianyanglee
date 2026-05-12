@@ -11,6 +11,21 @@ on:
       - "src/handlers/**"
       - ".github/workflows/lambda-build.yaml"
   workflow_dispatch:
+  workflow_call:
+    outputs:
+      artifact-name:
+        description: Name of the uploaded combined artifact
+        value: ${{ jobs.build.outputs.artifact-name }}
+      manifest:
+        description: JSON array of { handler, zip, sha256 }
+        value: ${{ jobs.build.outputs.manifest }}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lambda-build-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 defaults:
   run:
@@ -19,95 +34,189 @@ defaults:
 env:
   HANDLERS_DIR: src/handlers
   DIST_DIR: dist/handlers
+  ARTIFACT_NAME: lambda-packages
 
 jobs:
-  # Discover all handler files in src/handlers/ (e.g. "createUser"), for use in the build matrix.
+  # ---------------------------------------------------------------------------
+  # discover: enumerate handlers + decide which ones changed.
+  # Cheap (no Node setup); gives downstream jobs a stable input contract.
+  # ---------------------------------------------------------------------------
   discover:
-    name: Discover handlers
+    name: Discover & diff
     runs-on: ubuntu-latest
+    timeout-minutes: 2
     outputs:
-      handlers: ${{ steps.list.outputs.handlers }}
+      all_handlers: ${{ steps.list.outputs.handlers }}
+      changed_handlers: ${{ steps.diff.outputs.handlers }}
+      rebuild_all: ${{ steps.diff.outputs.rebuild_all }}
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 2 # need HEAD~1 for `git diff` on push events
+
       - id: list
+        name: List handlers
         working-directory: ${{ env.HANDLERS_DIR }}
         run: |
           handlers=$(ls *.mjs | sed 's/\.mjs$//' \
             | jq -R -s -c 'split("\n") | map(select(length > 0))')
           echo "handlers=$handlers" >> "$GITHUB_OUTPUT"
-          echo "Found handlers: $handlers"
-  # Linting with Biome 
+          echo "All handlers: $handlers"
+
+      - id: diff
+        name: Detect changed handlers
+        run: |
+          set -euo pipefail
+
+          case "${{ github.event_name }}" in
+            pull_request)
+              base="${{ github.event.pull_request.base.sha }}"
+              git fetch --depth=1 origin "$base" || true
+              range="$base...HEAD"
+              ;;
+            push)
+              range="HEAD~1...HEAD"
+              ;;
+            *)
+              echo "rebuild_all=true" >> "$GITHUB_OUTPUT"
+              echo "handlers=${{ steps.list.outputs.handlers }}" >> "$GITHUB_OUTPUT"
+              exit 0
+              ;;
+          esac
+
+          changed=$(git diff --name-only $range -- "${HANDLERS_DIR}" || echo "")
+          echo "Changed files:"; echo "$changed"
+
+          # Shared code or workflow change => rebuild all.
+          if echo "$changed" | grep -qE "^${HANDLERS_DIR}/(utils/|package(-lock)?\.json|biome\.json)"; then
+            echo "Shared code changed -> rebuild all"
+            echo "rebuild_all=true" >> "$GITHUB_OUTPUT"
+            echo "handlers=${{ steps.list.outputs.handlers }}" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          changed_handlers=$(echo "$changed" \
+            | grep -E "^${HANDLERS_DIR}/[^/]+\.mjs$" \
+            | xargs -n1 basename 2>/dev/null \
+            | sed 's/\.mjs$//' \
+            | jq -R -s -c 'split("\n") | map(select(length > 0))' || echo "[]")
+          echo "rebuild_all=false" >> "$GITHUB_OUTPUT"
+          echo "handlers=$changed_handlers" >> "$GITHUB_OUTPUT"
+          echo "Changed handlers: $changed_handlers"
+
+  # ---------------------------------------------------------------------------
+  # lint: single shot, no matrix. Biome is fast.
+  # ---------------------------------------------------------------------------
   lint:
     name: Lint (biome)
     runs-on: ubuntu-latest
+    timeout-minutes: 3
     steps:
       - uses: actions/checkout@v5
-
-      - name: Setup Node.js 22
-        uses: actions/setup-node@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: "22"
           cache: npm
           cache-dependency-path: ${{ env.HANDLERS_DIR }}/package-lock.json
-
-      - name: Install dependencies (incl. dev)
-        working-directory: ${{ env.HANDLERS_DIR }}
+      - working-directory: ${{ env.HANDLERS_DIR }}
         run: npm ci
-
-      - name: Biome check
-        working-directory: ${{ env.HANDLERS_DIR }}
+      - working-directory: ${{ env.HANDLERS_DIR }}
         run: npx --no-install biome check .
 
-  # build each handler in parallel, per the discover step, and upload zips as workflow artifacts
+  # ---------------------------------------------------------------------------
+  # build: validate + package every handler in a single runner.
+  # Loop is parallel-safe; if handler count ever justifies it, swap to a
+  # matrix using ${{ fromJson(needs.discover.outputs.all_handlers) }}.
+  # ---------------------------------------------------------------------------
   build:
-    name: Build & package — ${{ matrix.handler }}
+    name: Build & package
     needs: [discover, lint]
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        handler: ${{ fromJson(needs.discover.outputs.handlers) }}
-
+    timeout-minutes: 5
+    outputs:
+      artifact-name: ${{ env.ARTIFACT_NAME }}
+      manifest: ${{ steps.package.outputs.manifest }}
     steps:
       - uses: actions/checkout@v5
 
-      - name: Setup Node.js 22
-        uses: actions/setup-node@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: "22"
           cache: npm
           cache-dependency-path: ${{ env.HANDLERS_DIR }}/package-lock.json
 
+      # Runtime has zero prod deps today, but keep this honest:
+      # if package.json ever gains them, we want them in the zip.
       - name: Install production dependencies
-        # No dev deps in the runtime image — keeps installs fast and zips honest.
         working-directory: ${{ env.HANDLERS_DIR }}
         run: npm ci --omit=dev
 
-      - name: Verify handler export
-        working-directory: ${{ env.HANDLERS_DIR }}
-        run: grep -q "export const handler" "${{ matrix.handler }}.mjs"
-
-      - name: Syntax check (node --check)
-        working-directory: ${{ env.HANDLERS_DIR }}
+      - id: package
+        name: Validate & package handlers
+        env:
+          ALL_HANDLERS: ${{ needs.discover.outputs.all_handlers }}
+          CHANGED_HANDLERS: ${{ needs.discover.outputs.changed_handlers }}
+          REBUILD_ALL: ${{ needs.discover.outputs.rebuild_all }}
         run: |
-          node --check "${{ matrix.handler }}.mjs"
-          for f in utils/*.mjs; do node --check "$f"; done
+          set -euo pipefail
 
-      - name: Package zip
-        # Mirrors data.archive_file.lambda in infra/modules/lambda/archiving.tf:
-        # one handler file + shared utils/, zipped at the package root.
-        run: |
           mkdir -p "${DIST_DIR}"
-          OUT="${GITHUB_WORKSPACE}/${DIST_DIR}/${{ matrix.handler }}.zip"
-          rm -f "$OUT"
-          cd "${HANDLERS_DIR}"
-          zip -qr "$OUT" "${{ matrix.handler }}.mjs" utils/
-          unzip -l "$OUT"
+          handlers=$(echo "$ALL_HANDLERS" | jq -r '.[]')
+          echo "Packaging: $handlers"
+          echo "Changed (informational): $CHANGED_HANDLERS  rebuild_all=$REBUILD_ALL"
 
-      - name: Upload artifact
+          declare -a entries=()
+
+          for h in $handlers; do
+            file="${HANDLERS_DIR}/${h}.mjs"
+
+            grep -q "export const handler" "$file" \
+              || { echo "::error file=$file::missing 'export const handler'"; exit 1; }
+            node --check "$file"
+
+            # Mirror infra/modules/lambda/archiving.tf: handler + utils/ at root.
+            staging=$(mktemp -d)
+            cp "$file" "$staging/${h}.mjs"
+            cp -R "${HANDLERS_DIR}/utils" "$staging/utils"
+
+            # Deterministic zip: fixed mtime + sorted entries => stable sha256.
+            find "$staging" -exec touch -t 200001010000.00 {} +
+            tmp_zip=$(mktemp -u).zip
+            (cd "$staging" && find . -type f | sort | zip -qX "$tmp_zip" -@)
+
+            sha=$(shasum -a 256 "$tmp_zip" | awk '{print $1}')
+            short=${sha:0:12}
+            out="${DIST_DIR}/${h}-${short}.zip"
+            mv "$tmp_zip" "$out"
+            rm -rf "$staging"
+
+            echo "  $h -> $(basename "$out") ($sha)"
+            entries+=("$(jq -nc --arg h "$h" --arg z "$(basename "$out")" --arg s "$sha" \
+              '{handler:$h, zip:$z, sha256:$s}')")
+          done
+
+          # Sanity-check shared utils once (not per handler).
+          for f in ${HANDLERS_DIR}/utils/*.mjs; do node --check "$f"; done
+
+          manifest=$(printf '%s\n' "${entries[@]}" | jq -sc '.')
+          echo "$manifest" | jq '.' > "${DIST_DIR}/manifest.json"
+          {
+            echo "manifest<<EOF"
+            echo "$manifest"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+          {
+            echo "### Lambda packages"
+            echo '```json'
+            echo "$manifest" | jq '.'
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload combined artifact
         uses: actions/upload-artifact@v5
         with:
-          name: lambda-${{ matrix.handler }}
-          path: ${{ env.DIST_DIR }}/${{ matrix.handler }}.zip
+          name: ${{ env.ARTIFACT_NAME }}
+          path: ${{ env.DIST_DIR }}/
           retention-days: 7
           if-no-files-found: error
