@@ -12,11 +12,11 @@ The assignment includes designing your own project organization based on best pr
 
 ## Technology Stack
 
-- **Version Control:** GitHub
-- **Infrastructure as Code:** Terraform (v1.5+)
-- **Target Cloud Platform:** AWS (Lambda, API Gateway, DynamoDB, EventBridge, CloudWatch)
-- **CI/CD:** GitHub Actions (validation workflows only)
-- **Programming Language:** Node.js 22.x for Lambda functions
+- **Version Control:** GitHub ✅
+- **Infrastructure as Code:** Terraform (v1.5+) ✅
+- **Target Cloud Platform:** AWS (Lambda, API Gateway, DynamoDB, EventBridge, CloudWatch) ✅
+- **CI/CD:** GitHub Actions (validation workflows only) ✅
+- **Programming Language:** Node.js 22.x for Lambda functions ✅
 
 ## What You Will NOT Need
 
@@ -213,7 +213,7 @@ Your README and supporting documentation should clearly explain the design, arch
    - Key architectural decisions made ✅
    - Instructions for validating the code locally ✅
    - Any assumptions or trade-offs considered ✅
-3. **Architecture diagram** (ASCII art, Mermaid, or image file)
+3. **Architecture diagram** (ASCII art, Mermaid, or image file) ✅
 4. **Documentation** explaining your project structure and design decisions ✅
 
 ### Repository Requirements
@@ -224,9 +224,9 @@ Your README and supporting documentation should clearly explain the design, arch
 - ES Module syntax used throughout Lambda functions ✅
 - GitHub Actions workflows present and properly configured ✅
 - No AWS credentials or secrets committed ✅
-- Clear README explaining your approach
-- Project organization demonstrates DevOps best practices
-- Architecture diagram included in documentation
+- Clear README explaining your approach ✅
+- Project organization demonstrates DevOps best practices ✅
+- Architecture diagram included in documentation ✅
 
 ### Local Validation
 
