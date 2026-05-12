@@ -93,7 +93,7 @@ resource "aws_cloudwatch_log_group" "lambda_log_group" {
   for_each = var.lambda_functions
 
   name              = "/aws/lambda/${var.name_prefix}-${replace(each.key, "_", "-")}"
-  retention_in_days = 14
+  retention_in_days = var.log_retention_days
 
   tags = {
     Name     = "/aws/lambda/${var.name_prefix}-${replace(each.key, "_", "-")}"
@@ -122,7 +122,7 @@ resource "aws_lambda_function" "lambda_api_items" {
     variables = {
       TABLE_NAME  = var.dynamodb_table_name
       ENVIRONMENT = var.environment
-      LOG_LEVEL   = var.environment == "prod" ? "INFO" : "DEBUG"
+      LOG_LEVEL   = upper(var.lambda_log_level)
     }
   }
 

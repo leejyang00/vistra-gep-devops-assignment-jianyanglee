@@ -88,7 +88,7 @@ Injected by Terraform, consumed by handlers via `process.env`:
 | -------- | ------ | -------- |
 | `TABLE_NAME` | `module.dynamodb.table_name` | DynamoDB target table |
 | `ENVIRONMENT` | `var.environment` | Tags log lines for environment filtering |
-| `LOG_LEVEL` | `var.lambda_log_level` (default `info`) | Logger threshold |
+| `LOG_LEVEL` | `var.lambda_log_level` (default `INFO`) | Logger threshold |
 
 ## Trade-offs & Assumptions
 

@@ -53,6 +53,28 @@ variable "lambda_timeout" {
   }
 }
 
+variable "lambda_log_level" {
+  description = "Log level injected into Lambda functions via the LOG_LEVEL environment variable"
+  type        = string
+  default     = "INFO"
+
+  validation {
+    condition     = contains(["DEBUG", "INFO", "WARN", "ERROR"], upper(var.lambda_log_level))
+    error_message = "lambda_log_level must be one of: DEBUG, INFO, WARN, ERROR."
+  }
+}
+
+variable "log_retention_days" {
+  description = "Retention period (in days) for Lambda CloudWatch log groups"
+  type        = number
+  default     = 30
+
+  validation {
+    condition     = contains([1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 3653], var.log_retention_days)
+    error_message = "log_retention_days must be a CloudWatch-supported retention value."
+  }
+}
+
 variable "notification_email" {
   description = "Email address to receive alarm notifications (leave empty to disable)"
   type        = string

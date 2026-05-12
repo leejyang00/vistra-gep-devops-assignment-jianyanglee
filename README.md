@@ -111,7 +111,7 @@ _Task 5 (EventBridge + scheduled processor + DLQ) is intentionally not implement
 │           ├── outputs.tf
 │           └── versions.tf
 │
-├── src/handlers/                     # Node.js 22 Lambda function source
+├── src/handlers/                     # Node.js 22 Lambda function source (committed)
 │   ├── create-item.mjs               #   POST /items
 │   ├── list-items.mjs                #   GET /items
 │   ├── get-item.mjs                  #   GET /items/{id}
@@ -127,16 +127,14 @@ _Task 5 (EventBridge + scheduled processor + DLQ) is intentionally not implement
 │       ├── response.mjs              #   HTTP response builder with CORS
 │       └── validator.mjs             #   Input validation helpers
 │
-├── dist/handlers/                    # Packaged Lambda .zip artifacts (build output)
-│
 ├── docs/                             # Per-task design documentation
 │   ├── task-2.md                     #   Lambda handlers + API Gateway design rationale
 │   ├── task-3.md                     #   CI/CD pipeline strategy and trade-offs
 │   └── task-4.md                     #   Monitoring strategy, alarms, Insights queries
 │
 ├── scripts/
-│   ├── terraform-fmt.sh              #   Terraform formatting check
-│   ├── terraform-validate.sh         #   Terraform init + validate
+│   ├── tf-fmt.sh                     #   Terraform formatting check
+│   ├── tf-validate.sh                #   Terraform fmt-check + init + validate
 │   ├── node-validate.sh              #   Node.js syntax check
 │   └── api-call.sh                   #   Smoke-test deployed API endpoints
 │
