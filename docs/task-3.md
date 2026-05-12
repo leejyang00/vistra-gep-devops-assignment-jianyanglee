@@ -18,7 +18,7 @@ push ───┼─ security-scan ────── checkov (terraform)
 
 ### 1. [terraform-validate.yaml](../.github/workflows/terraform-validate.yaml)
 
-Runs the three assignment-required checks: `terraform fmt -check -recursive -diff` → `terraform init -backend=false` → `terraform validate`. `fmt` uses `continue-on-error: true` then re-fails at the end so reviewers see formatting *and* validation issues on one run, not two. Provider plugins cached on `.terraform.lock.hcl`; results posted to `$GITHUB_STEP_SUMMARY`.
+Runs the three assignment-required checks: `terraform fmt -check -recursive -diff` → `terraform init -backend=false` → `terraform validate`. `fmt` uses `continue-on-error: true` then re-fails at the end so reviewers see formatting _and_ validation issues on one run, not two. Provider plugins cached on `.terraform.lock.hcl`; results posted to `$GITHUB_STEP_SUMMARY`.
 
 ### 2. [security-scan.yaml](../.github/workflows/security-scan.yaml)
 
@@ -49,7 +49,7 @@ Chosen over `strategy.matrix` per-handler: for ~kB of JS, per-runner overhead (c
 | JS syntax + handler contract | `node --check`, `export const handler` assertion | [lambda-build.yaml](../.github/workflows/lambda-build.yaml) |
 | Reproducible builds | Deterministic zips with `sha256` in filename | [lambda-build.yaml](../.github/workflows/lambda-build.yaml) |
 | Docs hygiene | `markdownlint` + internal-link check | [docs-lint.yaml](../.github/workflows/docs-lint.yaml) |
-| Local parity | Same checks via [scripts/](../scripts/) — no GitHub needed | [terraform-fmt.sh](../scripts/terraform-fmt.sh), [terraform-validate.sh](../scripts/terraform-validate.sh), [node-validate.sh](../scripts/node-validate.sh) |
+| Local parity | Same checks via [scripts/](../scripts/) — no GitHub needed | [tf-fmt.sh](../scripts/tf-fmt.sh), [tf-validate.sh](../scripts/tf-validate.sh), [node-validate.sh](../scripts/node-validate.sh) |
 | Supply-chain hygiene | `permissions: contents: read`, path-scoped triggers, `concurrency` cancellation | All workflows |
 
 ## Trade-offs and next steps

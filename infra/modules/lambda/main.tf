@@ -20,21 +20,16 @@ resource "aws_iam_role" "lambda_exec_role" {
   }
 }
 
-# Attach inline policy for logging
+# Attach inline policy for logging.
+# Log groups are pre-created by Terraform (see aws_cloudwatch_log_group.lambda_log_group),
+# so the role only needs CreateLogStream + PutLogEvents scoped to those groups.
 data "aws_iam_policy_document" "lambda_logging" {
   statement {
-    actions = [
-      "logs:CreateLogGroup",
-      "logs:CreateLogStream",
-      "logs:PutLogEvents"
-    ]
-    resources = ["arn:aws:logs:*:*:*"]
-  }
-  statement {
-    sid = "AllowLogWriting"
+    sid    = "AllowLogWriting"
+    effect = "Allow"
     actions = [
       "logs:CreateLogStream",
-      "logs:PutLogEvents"
+      "logs:PutLogEvents",
     ]
     resources = [
       "arn:aws:logs:*:*:log-group:/aws/lambda/${var.name_prefix}-*:*",
@@ -98,7 +93,7 @@ resource "aws_cloudwatch_log_group" "lambda_log_group" {
   for_each = var.lambda_functions
 
   name              = "/aws/lambda/${var.name_prefix}-${replace(each.key, "_", "-")}"
-  retention_in_days = 14
+  retention_in_days = var.log_retention_days
 
   tags = {
     Name     = "/aws/lambda/${var.name_prefix}-${replace(each.key, "_", "-")}"
@@ -127,7 +122,7 @@ resource "aws_lambda_function" "lambda_api_items" {
     variables = {
       TABLE_NAME  = var.dynamodb_table_name
       ENVIRONMENT = var.environment
-      LOG_LEVEL   = var.environment == "prod" ? "INFO" : "DEBUG"
+      LOG_LEVEL   = upper(var.lambda_log_level)
     }
   }
 

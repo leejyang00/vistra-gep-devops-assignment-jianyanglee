@@ -27,6 +27,8 @@ module "lambda" {
   lambda_runtime     = var.lambda_runtime
   lambda_memory_size = var.lambda_memory_size
   lambda_timeout     = var.lambda_timeout
+  lambda_log_level   = var.lambda_log_level
+  log_retention_days = var.log_retention_days
   # s3 bucket
   s3_bucket     = module.storage.bucket_id
   s3_bucket_arn = module.storage.bucket_arn

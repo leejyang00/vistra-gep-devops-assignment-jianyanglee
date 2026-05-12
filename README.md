@@ -18,6 +18,54 @@ No AWS credentials are required. All code validates locally using `terraform val
 
 ---
 
+## Architecture
+
+```mermaid
+flowchart LR
+    Client(["Client"]) -->|HTTPS| APIGW["API Gateway<br/>REST API · CORS"]
+
+    subgraph Handlers["Lambda — Node.js 22 (ES Modules)"]
+        direction TB
+        L1["create-item<br/>POST /items"]
+        L2["list-items<br/>GET /items"]
+        L3["get-item<br/>GET /items/{id}"]
+        L4["update-item<br/>PUT /items/{id}"]
+        L5["delete-item<br/>DELETE /items/{id}"]
+    end
+
+    APIGW --> L1 & L2 & L3 & L4 & L5
+
+    L1 & L2 & L3 & L4 & L5 -->|"AWS SDK v3<br/>(lib-dynamodb)"| DDB[("DynamoDB<br/>items · SSE · PITR")]
+    L1 & L2 & L3 & L4 & L5 -.->|structured JSON logs| Logs["CloudWatch Logs<br/>(per-function groups)"]
+
+    S3[("S3<br/>Lambda packages<br/>versioned")] -.->|deployment artifact| Handlers
+
+    subgraph Monitoring["CloudWatch (Task 4)"]
+        direction TB
+        Dash["Dashboard"]
+        Alarms["Alarms<br/>errors · latency · throttles"]
+    end
+
+    APIGW -.-> Alarms
+    Handlers -.-> Alarms
+    DDB -.-> Alarms
+    Logs --> Dash
+    Alarms --> SNS["SNS topic<br/>→ email"]
+
+    classDef store fill:#fff5d6,stroke:#b58900;
+    classDef compute fill:#e6f1fc,stroke:#268bd2;
+    classDef edge fill:#e8f7e8,stroke:#2aa198;
+    classDef obs fill:#fbe9f3,stroke:#d33682;
+    class DDB,S3 store;
+    class L1,L2,L3,L4,L5 compute;
+    class APIGW edge;
+    class Dash,Alarms,SNS,Logs obs;
+```
+
+_Task 5 (EventBridge + scheduled processor + DLQ) is intentionally not implemented in this submission._
+
+---
+
 ## Project Structure
 
 ```text
@@ -63,7 +111,7 @@ No AWS credentials are required. All code validates locally using `terraform val
 │           ├── outputs.tf
 │           └── versions.tf
 │
-├── src/handlers/                     # Node.js 22 Lambda function source
+├── src/handlers/                     # Node.js 22 Lambda function source (committed)
 │   ├── create-item.mjs               #   POST /items
 │   ├── list-items.mjs                #   GET /items
 │   ├── get-item.mjs                  #   GET /items/{id}
@@ -79,16 +127,14 @@ No AWS credentials are required. All code validates locally using `terraform val
 │       ├── response.mjs              #   HTTP response builder with CORS
 │       └── validator.mjs             #   Input validation helpers
 │
-├── dist/handlers/                    # Packaged Lambda .zip artifacts (build output)
-│
 ├── docs/                             # Per-task design documentation
 │   ├── task-2.md                     #   Lambda handlers + API Gateway design rationale
 │   ├── task-3.md                     #   CI/CD pipeline strategy and trade-offs
 │   └── task-4.md                     #   Monitoring strategy, alarms, Insights queries
 │
 ├── scripts/
-│   ├── terraform-fmt.sh              #   Terraform formatting check
-│   ├── terraform-validate.sh         #   Terraform init + validate
+│   ├── tf-fmt.sh                     #   Terraform formatting check
+│   ├── tf-validate.sh                #   Terraform fmt-check + init + validate
 │   ├── node-validate.sh              #   Node.js syntax check
 │   └── api-call.sh                   #   Smoke-test deployed API endpoints
 │
@@ -110,7 +156,7 @@ No AWS credentials are required. All code validates locally using `terraform val
 
 ### Per-Task Documentation
 
-The [docs/](docs/) directory contains one design document per assignment task. Each covers the *why* — strategy, trade-offs, and decisions — rather than restating what the code does.
+The [docs/](docs/) directory contains one design document per assignment task. Each covers the _why_ — strategy, trade-offs, and decisions — rather than restating what the code does.
 
 - **[docs/task-2.md](docs/task-2.md)** — Lambda handler design, API Gateway integration, validation and response contracts, IAM scoping for the CRUD module.
 - **[docs/task-3.md](docs/task-3.md)** — CI/CD pipeline shape, ordering rationale (fail fast on cheapest signal), security scanning trade-offs, deterministic Lambda packaging.

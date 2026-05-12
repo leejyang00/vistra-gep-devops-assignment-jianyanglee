@@ -38,6 +38,18 @@ variable "lambda_timeout" {
   }
 }
 
+variable "lambda_log_level" {
+  description = "Log level for Lambda functions (LOG_LEVEL env var)"
+  type        = string
+  default     = "INFO"
+}
+
+variable "log_retention_days" {
+  description = "Retention period (in days) for CloudWatch log groups"
+  type        = number
+  default     = 30
+}
+
 variable "lambda_functions" {
   description = "Map of Lambda function configurations"
   type = map(object({
