@@ -40,6 +40,7 @@ sequenceDiagram
 Notes:
 
 - Handlers share a singleton `DynamoDBDocumentClient` (SDK v3, `lib-dynamodb`) reused across warm invocations.
+- The other handlers (GET, PUT, DELETE) follow the same shape; they differ only in the DynamoDB operation and the success status code — see the Response & Error Contract table below.
 
 ## Response & Error Contract
 
