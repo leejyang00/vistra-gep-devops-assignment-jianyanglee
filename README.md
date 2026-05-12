@@ -81,6 +81,11 @@ No AWS credentials are required. All code validates locally using `terraform val
 │
 ├── dist/handlers/                    # Packaged Lambda .zip artifacts (build output)
 │
+├── docs/                             # Per-task design documentation
+│   ├── task-2.md                     #   Lambda handlers + API Gateway design rationale
+│   ├── task-3.md                     #   CI/CD pipeline strategy and trade-offs
+│   └── task-4.md                     #   Monitoring strategy, alarms, Insights queries
+│
 ├── scripts/
 │   ├── terraform-fmt.sh              #   Terraform formatting check
 │   ├── terraform-validate.sh         #   Terraform init + validate
@@ -103,6 +108,16 @@ No AWS credentials are required. All code validates locally using `terraform val
 
 **Optional modules via feature flags.** Monitoring modules are gated behind `enable_monitoring` boolean variables. This keeps the core stack minimal while allowing progressive enhancement. The `count` meta-argument on the module block conditionally includes them.
 
+### Per-Task Documentation
+
+The [docs/](docs/) directory contains one design document per assignment task. Each covers the *why* — strategy, trade-offs, and decisions — rather than restating what the code does.
+
+- **[docs/task-2.md](docs/task-2.md)** — Lambda handler design, API Gateway integration, validation and response contracts, IAM scoping for the CRUD module.
+- **[docs/task-3.md](docs/task-3.md)** — CI/CD pipeline shape, ordering rationale (fail fast on cheapest signal), security scanning trade-offs, deterministic Lambda packaging.
+- **[docs/task-4.md](docs/task-4.md)** — Monitoring strategy (symptom-based alarming), metric/threshold rationale, dashboard design, CloudWatch Insights queries for triage.
+
+Task 1 rationale lives in this README (project structure + key architectural decisions). Task 5 is not implemented.
+
 ## API Endpoints
 
 | Method | Path | Description | Status Codes |
@@ -114,3 +129,36 @@ No AWS credentials are required. All code validates locally using `terraform val
 | `DELETE` | `/items/{id}` | Delete item by ID | 200, 400, 404, 500 |
 
 All endpoints return JSON with CORS headers. Request bodies are validated; malformed JSON or missing required fields return 400 with detailed error messages.
+
+---
+
+## Key Architectural Decisions
+
+### Shared IAM Role for CRUD Lambdas
+
+All five CRUD handlers share one execution role because they require identical permissions (CloudWatch Logs + DynamoDB table). Per-function roles would add complexity without security benefit. If a future handler needs different permissions, it gets its own role.
+
+### Pre-Created CloudWatch Log Groups
+
+Lambda auto-creates log groups without retention policies, leading to unbounded log storage costs. Terraform pre-creates log groups with configurable retention (default 30 days), and the Lambda resource depends on them to avoid race conditions.
+
+### PAY_PER_REQUEST DynamoDB Billing
+
+On-demand billing eliminates capacity planning for a new API with unknown traffic patterns. The trade-off (slightly higher per-request cost) is acceptable until traffic stabilises, at which point switching to provisioned mode is a single variable change.
+
+---
+
+## Validating the Code Locally
+
+No AWS credentials needed. The scripts in [scripts/](scripts/) run the same checks as CI — see [docs/task-3.md](docs/task-3.md) for the full strategy.
+
+**Prerequisites:** Terraform ≥ 1.6, Node.js 22.x, `jq`, `zip`.
+
+```bash
+./scripts/tf-fmt.sh        # auto-fix HCL formatting
+./scripts/tf-validate.sh   # fmt-check + init (no backend) + validate
+./scripts/node-validate.sh        # ES-module conventions, syntax, packaging
+./scripts/api-call.sh             # optional: smoke-test a deployed API
+```
+
+A non-zero exit from any script means CI will fail on the same check.

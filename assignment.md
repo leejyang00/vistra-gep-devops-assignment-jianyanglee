@@ -208,13 +208,13 @@ Your README and supporting documentation should clearly explain the design, arch
 
 1. **GitHub Repository** (public or grant reviewer access)
 2. **README.md** at repository root containing:
-   - Project overview
-   - Your folder structure explanation and rationale
-   - Key architectural decisions made
-   - Instructions for validating the code locally
-   - Any assumptions or trade-offs considered
+   - Project overview ✅
+   - Your folder structure explanation and rationale ✅
+   - Key architectural decisions made ✅
+   - Instructions for validating the code locally ✅
+   - Any assumptions or trade-offs considered ✅
 3. **Architecture diagram** (ASCII art, Mermaid, or image file)
-4. **Documentation** explaining your project structure and design decisions
+4. **Documentation** explaining your project structure and design decisions ✅
 
 ### Repository Requirements
 
