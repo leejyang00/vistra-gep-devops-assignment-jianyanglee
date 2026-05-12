@@ -156,7 +156,7 @@ _Task 5 (EventBridge + scheduled processor + DLQ) is intentionally not implement
 
 ### Per-Task Documentation
 
-The [docs/](docs/) directory contains one design document per assignment task. Each covers the *why* — strategy, trade-offs, and decisions — rather than restating what the code does.
+The [docs/](docs/) directory contains one design document per assignment task. Each covers the _why_ — strategy, trade-offs, and decisions — rather than restating what the code does.
 
 - **[docs/task-2.md](docs/task-2.md)** — Lambda handler design, API Gateway integration, validation and response contracts, IAM scoping for the CRUD module.
 - **[docs/task-3.md](docs/task-3.md)** — CI/CD pipeline shape, ordering rationale (fail fast on cheapest signal), security scanning trade-offs, deterministic Lambda packaging.

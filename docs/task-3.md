@@ -18,7 +18,7 @@ push ───┼─ security-scan ────── checkov (terraform)
 
 ### 1. [terraform-validate.yaml](../.github/workflows/terraform-validate.yaml)
 
-Runs the three assignment-required checks: `terraform fmt -check -recursive -diff` → `terraform init -backend=false` → `terraform validate`. `fmt` uses `continue-on-error: true` then re-fails at the end so reviewers see formatting *and* validation issues on one run, not two. Provider plugins cached on `.terraform.lock.hcl`; results posted to `$GITHUB_STEP_SUMMARY`.
+Runs the three assignment-required checks: `terraform fmt -check -recursive -diff` → `terraform init -backend=false` → `terraform validate`. `fmt` uses `continue-on-error: true` then re-fails at the end so reviewers see formatting _and_ validation issues on one run, not two. Provider plugins cached on `.terraform.lock.hcl`; results posted to `$GITHUB_STEP_SUMMARY`.
 
 ### 2. [security-scan.yaml](../.github/workflows/security-scan.yaml)
 
