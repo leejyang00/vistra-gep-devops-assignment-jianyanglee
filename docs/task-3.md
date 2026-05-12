@@ -42,7 +42,7 @@ Chosen over `strategy.matrix` per-handler: for ~kB of JS, per-runner overhead (c
 ## How the pipelines support code quality
 
 | Concern | Enforcement | Workflow |
-|---|---|---|
+| ------- | ----------- | -------- |
 | HCL style + correctness | `terraform fmt -check`, `terraform validate` | [terraform-validate.yaml](../.github/workflows/terraform-validate.yaml) |
 | Infra security baseline | Checkov, PR-summarised | [security-scan.yaml](../.github/workflows/security-scan.yaml) |
 | JS style + lint | Biome (formatter + linter) | [lambda-build.yaml](../.github/workflows/lambda-build.yaml) |

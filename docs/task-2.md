@@ -5,7 +5,7 @@ Node.js 22 ES Module handlers for the items REST API.
 ## Handler Summary
 
 | File | Endpoint | Description |
-|------|----------|-------------|
+| ---- | -------- | ----------- |
 | `create-item.mjs` | `POST /items` | Validates input, generates UUID, returns 201 |
 | `list-items.mjs` | `GET /items` | Paginated listing with `limit` and `nextToken` params |
 | `get-item.mjs` | `GET /items/{id}` | Retrieves single item by path parameter |
@@ -45,7 +45,7 @@ All responses share one envelope, built in [utils/response.mjs](../src/handlers/
 ```
 
 | Code | When | Helper |
-|---|---|---|
+| ---- | ---- | ------ |
 | 201 | Created | `created(data)` |
 | 200 | OK | `success(data)` |
 | 400 | Malformed JSON or validation failure (`details` carries error array) | `badRequest(msg, details)` |
@@ -85,7 +85,7 @@ This is what the CloudWatch Insights queries in [task-4.md](task-4.md) parse aga
 Injected by Terraform, consumed by handlers via `process.env`:
 
 | Variable | Source | Used for |
-|---|---|---|
+| -------- | ------ | -------- |
 | `TABLE_NAME` | `module.dynamodb.table_name` | DynamoDB target table |
 | `ENVIRONMENT` | `var.environment` | Tags log lines for environment filtering |
 | `LOG_LEVEL` | `var.lambda_log_level` (default `info`) | Logger threshold |
