@@ -21,17 +21,25 @@ Node.js 22 ES Module handlers for the items REST API.
 
 ## Request Flow
 
-```text
-Client ──HTTPS──▶ API Gateway (REST, proxy integration, CORS)
-                       │
-                       ▼
-                  Lambda handler  ──┐
-                  (per route)       │  AWS SDK v3, lib-dynamodb doc client
-                       │            │  (singleton, reused across warm invocations)
-                       ▼            │
-                  DynamoDB ◀────────┘
-                  (conditional writes: attribute_not_exists / attribute_exists)
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant AG as API Gateway
+    participant L as Lambda
+    participant DB as DynamoDB
+
+    C->>AG: POST /items { name, description }
+    AG->>L: Proxy integration (create-item)
+    L->>L: Validate input
+    L->>DB: PutItem
+    DB-->>L: Success
+    L-->>AG: 201 Created { item }
+    AG-->>C: 201 Created
 ```
+
+Notes:
+
+- Handlers share a singleton `DynamoDBDocumentClient` (SDK v3, `lib-dynamodb`) reused across warm invocations.
 
 ## Response & Error Contract
 
