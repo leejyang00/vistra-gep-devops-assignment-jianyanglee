@@ -101,7 +101,7 @@ Whether I understand IaC organisation trade-offs, not whether the layout is "cor
 - **"How do you handle cold starts?"** → Smallest viable package (per-function zips), SDK v3 modular imports, singleton clients, no heavy frameworks. Provisioned concurrency is the next lever if p99 cold-start matters.
 - **"What about idempotency on POST?"** → Currently not implemented. Production: client supplies an `Idempotency-Key` header, Lambda writes it to a DDB key with TTL, and short-circuits duplicates. The `attribute_not_exists(id)` ConditionExpression already prevents accidental ID collisions.
 
-### Weak spots to be honest about
+### Weak spots to be honest about (Lambda + API Gateway)
 
 - The assignment said "DO NOT need to implement actual CRUD code that makes changes to database" — but `create-item.mjs` actually does call `PutCommand`. That's fine (more thorough than required) but I should be ready to explain it's wired but never deployed.
 - No request-level Lambda authorizer or Cognito — `authorization = "NONE"`. Documented in README assumptions.
@@ -122,7 +122,7 @@ Four workflows, each path-scoped, each runnable locally via [scripts/](scripts/)
 3. [lambda-build.yaml](.github/workflows/lambda-build.yaml) — discover → lint (Biome) → build per-handler zip with sha256 in filename → upload `lambda-packages` artifact + `manifest.json`.
 4. [docs-lint.yaml](.github/workflows/docs-lint.yaml) — markdownlint + intra-repo link check.
 
-### Talking points
+### Talking points (CI/CD)
 
 - **"Fail fast on the cheapest signal first."** `fmt` runs with `continue-on-error` so format and validate errors surface in one run, not two — but the workflow re-fails at the end so PRs can't merge dirty.
 - **Path-scoped triggers.** Docs PRs don't trigger Terraform; Terraform PRs don't rebuild Lambda zips. Faster CI, cheaper minutes, smaller blast radius.
@@ -140,7 +140,7 @@ Four workflows, each path-scoped, each runnable locally via [scripts/](scripts/)
 - **Checkov in `soft_fail: true` mode currently.** Honest reason: hard-failing on a greenfield baseline trains reviewers to ignore the check. The path forward is documented: triage findings → suppress accepted ones with `skip_check` + rationale → flip `soft_fail: false`.
 - Already documented suppressions: `CKV_AWS_144` (cross-region replication on the package bucket) and `CKV_AWS_145` (MFA-delete) — both out of scope for this assignment.
 
-### Likely questions
+### Likely questions (CI/CD)
 
 - **"Why Checkov over tfsec?"** → tfsec was archived/merged into Trivy. Checkov has broader coverage (also IaC-scans CloudFormation, K8s, Helm) and active maintenance. Either is defensible.
 - **"How would you add a deploy stage?"** → New workflow triggered on `main`, OIDC federation to AWS (no long-lived secrets), consume `lambda-build`'s `manifest` output, `terraform plan` → manual approval → `terraform apply`. Per-environment workflows with environment protection rules.
@@ -158,7 +158,7 @@ Four workflows, each path-scoped, each runnable locally via [scripts/](scripts/)
 
 ## 4. Monitoring (Task 4)
 
-### Talking points
+### Talking points (Monitoring)
 
 - **Symptom-based alarming.** Alarms fire on **user-visible failure modes** (errors, latency, throttles), not on resource-level signals (CPU, memory) that may not translate into customer pain. Keeps signal-to-noise high.
 - **Three tiers covered**, matching the request path:
@@ -185,7 +185,7 @@ Four workflows, each path-scoped, each runnable locally via [scripts/](scripts/)
 | APIGW p99 latency | > 3000 ms | End-to-end user-perceived ceiling. |
 | DDB ThrottledRequests | > 0 | Capacity is insufficient — fix before upstream cascade. |
 
-### Likely questions
+### Likely questions (Monitoring)
 
 - **"Why p99 not p50?"** → p50 hides tail latency that affects real users. p99 is the standard SLO target for user-facing APIs.
 - **"Why symptom-based, not resource-based?"** → Resource alarms (CPU, memory) page on-call when nothing customer-facing is broken. Symptom alarms only page when users feel pain. Google SRE chapter 6.
