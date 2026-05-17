@@ -75,7 +75,7 @@ resource "aws_cloudwatch_log_group" "api_gateway" {
 # stage 
 resource "aws_api_gateway_stage" "main" {
   rest_api_id   = aws_api_gateway_rest_api.main.id
-  deployment_id = aws_api_gateway_deployment.main.id
+  deployment_id = aws_api_gateway_deployment.main.id # associate with deployment id
   stage_name    = "dev-stage"
 
   access_log_settings {
